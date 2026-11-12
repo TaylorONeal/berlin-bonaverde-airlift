@@ -12,8 +12,9 @@
 #   - Apple: the bundle id com.berlinairlift.app registered with the NFC Tag Reading
 #     capability, and an App Store Connect app record for it.
 #     Put that record's Apple ID in APP_STORE_APPLE_ID.
-#   - Android: an upload keystore added under Code signing identities with the
-#     reference name berlin_airlift_upload.
+#   - Android: the account's existing upload keystore (reference name
+#     cuecraft_android_upload, under Code signing identities). Google allows one
+#     upload key across apps, and it can be reset through Play support if needed.
 #   - Android: a Google Play service account JSON saved as the secret
 #     GCLOUD_SERVICE_ACCOUNT_CREDENTIALS in an environment group named google_play.
 # Store builds leave the pretend card out: EXPO_PUBLIC_DEMO is never set here.
@@ -109,7 +110,7 @@ workflows:
       node: 22
       java: 17
       android_signing:
-        - berlin_airlift_upload
+        - cuecraft_android_upload
       groups:
         - google_play
       vars:

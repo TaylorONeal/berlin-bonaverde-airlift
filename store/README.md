@@ -60,7 +60,7 @@ Drafts, rendered from the app's web preview: `store/screenshots/apple/` (1320 x 
 
 1. App Store Connect: register `com.berlinairlift.app` with the NFC Tag Reading capability, create the app record, put its Apple ID in `codemagic.yaml`.
 2. Google Play: create the app under the organization developer account, set it free.
-3. Codemagic: add this repo as an app, add the upload keystore (`berlin_airlift_upload`) and the Play service account (`google_play` group).
+3. Codemagic: add this repo as an app, use the existing upload keystore (`cuecraft_android_upload`), add the Play service account (`google_play` group).
 4. Tag `v1.0.0` and push. Codemagic builds both, sends iOS to TestFlight and Android to internal testing as a draft.
 5. Install from TestFlight and from Play internal testing on real phones. Write a card with a blank EV1, brew with it, check it with "What's on this card?".
 6. Capture real screenshots and the App Review video from that session.
