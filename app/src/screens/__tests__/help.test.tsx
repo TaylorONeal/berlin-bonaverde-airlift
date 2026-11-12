@@ -13,6 +13,8 @@ it('names the exact card to buy and the look-alikes to avoid', async () => {
   );
   expect(screen.getByText('MIFARE Ultralight EV1')).toBeTruthy();
   expect(screen.getByText(/Chip MF0UL11/)).toBeTruthy();
+  expect(screen.getByLabelText('Works: MIFARE Ultralight EV1')).toBeTruthy();
+  expect(screen.getByLabelText('Will not work: NTAG cards')).toBeTruthy();
   await fireEvent.press(screen.getByText('Which cards look right but are wrong?'));
   expect(screen.getByText(/NTAG213, NTAG215, NTAG216/)).toBeTruthy();
   expect(screen.getByText(/MIFARE Classic 1K/)).toBeTruthy();

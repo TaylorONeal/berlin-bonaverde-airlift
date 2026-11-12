@@ -13,7 +13,7 @@ mkdir -p $W/preview $W/cap
 python3 -I tools/store-screenshots/build_preview.py $W
 python3 -I tools/store-screenshots/capture.py $W          # screens at 393x852 @3x
 python3 -I tools/store-screenshots/capture_pause.py $W    # drink sheet scrolled to the pause
-python3 -I tools/store-screenshots/compose.py $W app/node_modules/@expo-google-fonts/fraunces store/screenshots --variant-b
+python3 -I tools/store-screenshots/compose.py $W app/node_modules/@expo-google-fonts/fraunces store/screenshots
 ```
 
 Rules the frames follow:
@@ -24,4 +24,5 @@ Rules the frames follow:
 - Frame 1 says who the app is for. This app only helps people who own the machine.
 - Real app screens only, nothing drawn inside a screen. Drawings (machine, cards, plane) sit outside screens.
 - No price words in headlines, no em dashes.
-- `--variant-b` also writes frame 1 with the machine named in full, to `01b-*` files.
+- Name a third-party brand only in a smaller line under a headline, never in the headline itself.
+- Sell the payoff, not the instructions: detail like which card to buy belongs in the app's Help.

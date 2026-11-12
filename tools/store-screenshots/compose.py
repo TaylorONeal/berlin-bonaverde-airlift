@@ -1,16 +1,15 @@
 """Store frames, round 2: one owner job per frame, each with its own layout.
 
-python3 -I compose.py <work dir with cap/> <fraunces font dir> <out dir> [--variant-b]
+python3 -I compose.py <work dir with cap/> <fraunces font dir> <out dir>
 
-Frame 1 has two headline variants. A names no brand ("Own a Berlin coffee machine?").
-B names the machine in full ("Own a Bonaverde Berlin?"), which is clearer in search but
-puts a third-party brand in the image. The default render is A; --variant-b writes B too.
+Frame 1 names the machine in full ("For Bonaverde Berlin owners") on a line under the
+headline, never in the headline itself, so searchers know who it is for without a
+third-party brand taking over the image.
 """
 import sys, asyncio, random
 from playwright.async_api import async_playwright
 
 S, F, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-VARIANT_B = '--variant-b' in sys.argv
 C = S + '/cap/'
 VERDE, DEEP, POP, CREAM, PAPER, OAK, WALNUT, ESP, NIGHT, GREY = '#17703D', '#0F5A30', '#7BE495', '#F6EFE3', '#EADFCB', '#C99B66', '#5B3A26', '#2A1B12', '#0B2A1C', '#8C8A86'
 
@@ -52,6 +51,11 @@ CHUTE = f'''<svg viewBox="0 0 64 70"><path d="M4 28 C 4 10, 18 2, 32 2 C 46 2, 6
 CHERRIES = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>' for x, y, r, c in [(60, 150, 22, '#B3261E'), (98, 140, 20, '#C9412F'), (80, 182, 21, '#8E1B16'), (196, 92, 18, '#B3261E'), (226, 70, 19, POP), (250, 96, 17, '#9BD77A')])
 BRANCH = f'''<svg viewBox="0 0 300 220"><path d="M10 200 C 80 160, 160 140, 290 40" stroke="{WALNUT}" stroke-width="8" fill="none" stroke-linecap="round"/>
 <path d="M150 130 C 170 190, 240 200, 270 170 C 240 140, 190 120, 150 130 Z" fill="{VERDE}"/><path d="M120 150 C 100 100, 40 70, 10 90 C 40 130, 80 155, 120 150 Z" fill="{DEEP}"/>{CHERRIES}</svg>'''
+
+BOX = f'''<svg viewBox="0 0 260 220"><path d="M20 70 L130 100 L240 70 L240 190 L130 218 L20 190 Z" fill="#B98A57"/>
+<path d="M130 100 L240 70 L240 190 L130 218 Z" fill="#A3774A"/><path d="M20 70 L130 100 L130 218 L20 190 Z" fill="#C99B66"/>
+<path d="M20 70 L-4 34 L104 62 L130 100 Z" fill="#D9B485"/><path d="M240 70 L264 34 L156 62 L130 100 Z" fill="#B98A57"/>
+<rect x="44" y="120" width="62" height="14" rx="3" fill="{CREAM}" opacity=".85" transform="rotate(14 75 127)"/></svg>'''
 
 def bean(x, y, s, r, c):
     return f'<svg class="bean" style="left:{x}px;top:{y}px;width:{s}px;height:{s*1.35}px;transform:rotate({r}deg)" viewBox="0 0 40 54"><ellipse cx="20" cy="27" rx="18" ry="25" fill="{c}"/><path d="M20 4 C 12 18, 28 34, 20 50" stroke="rgba(0,0,0,.28)" stroke-width="3" fill="none"/></svg>'
@@ -104,11 +108,11 @@ def beans(rnd, W, H, n, cols, y0=0.0, y1=1.0, u=1.0):
 
 # ---------- the eight jobs ----------
 
-def f1_owner(W, H, b=False):
+def f1_owner(W, H):
     """Job: 'I own this machine, will this keep it going?' Airdrop onto the machine."""
     u, tall = W / 1320, H / W > 2
     rnd = random.Random(1)
-    l1, l2 = ('Own a Bonaverde', 'Berlin?') if b else ('Own a Berlin', 'coffee machine?')
+    l1, l2 = ('Own a Berlin', 'coffee machine?')
     lines = (f'{l1}<br>{l2}', 'Keep it brewing.')
     hs = fit((l1, l2, 'Keep it brewing.'), 175 * u, W)
     mw = W * (0.62 if tall else 0.44)
@@ -123,7 +127,7 @@ def f1_owner(W, H, b=False):
     body += svgbox(card(False), W*0.565, top + W*0.24, W*0.10, 8)
     body += svgbox(machine('m1'), W*0.42, my, mw)
     body += phone('home', W*0.06, my + mw*0.12, pw, -6)
-    body += sticker('Made by owners', W*0.05, H*0.05 + hs*3.3, 52*u, POP, ESP, -5)
+    body += f'<div class="body abs" style="left:{W*0.06}px;top:{H*0.05 + hs*3.18}px;font-size:{64*u}px;color:{CREAM}">For <b style="color:{POP}">Bonaverde Berlin</b> owners</div>'
     return wrap(W, H, VERDE, body)
 
 def f2_again(W, H):
@@ -165,24 +169,38 @@ def f3_tap(W, H):
     return wrap(W, H, POP, body)
 
 def f4_card(W, H):
-    """Job: 'which card do I even buy?' Card close-up and a checklist, no phone."""
+    """Job: 'where do I get cards now?' Buy one online, program it, it's ready."""
     u, tall = W / 1320, H / W > 2
-    hs = fit(('Know exactly', 'which card to buy.'), 150 * u, W)
-    body = head(('Know exactly', 'which card to buy.'), W*0.06, H*0.05, hs, ESP, VERDE, W*0.92)
-    cw = W * (0.90 if tall else 0.70)
-    cy = H*0.05 + hs*2.4
-    body += svgbox(card(True), (W - cw)/2, cy, cw, -5, 'filter:drop-shadow(0 30px 40px rgba(0,0,0,.28))')
-    rows = [('✓', 'MIFARE Ultralight EV1', VERDE), ('✕', 'NTAG cards', '#B3261E'), ('✕', 'MIFARE Classic', '#B3261E'), ('✕', 'A plain "NFC card"', '#B3261E')]
-    ry = cy + cw * 210 / 330 + H * 0.05
-    fs = 92 * u if tall else 58 * u
-    for i, (m, t, c) in enumerate(rows):
-        y = ry + i * fs * 1.9
-        body += f'<div class="body abs" style="left:{W*0.10}px;top:{y}px;font-size:{fs}px;color:{ESP};display:flex;align-items:center;gap:{fs*0.5}px"><span style="display:inline-flex;width:{fs*1.3}px;height:{fs*1.3}px;border-radius:50%;background:{c};color:{CREAM};align-items:center;justify-content:center">{m}</span>{t}</div>'
-    body += sticker('Cards or stickers', W*0.58, cy - 40*u, 50*u, OAK, ESP, 6)
+    lines = ('Buy a card online.', 'Program it. Brew.')
+    hs = fit(lines, 150 * u, W)
+    body = f'<div class="abs" style="left:{W*0.35}px;top:{H*0.30}px;width:{W*1.1}px;height:{W*1.1}px;border-radius:50%;background:{POP};opacity:.35"></div>'
+    body += head(lines, W*0.06, H*0.05, hs, ESP, VERDE, W*0.92)
+    top = H*0.05 + hs*2.6
+    bw = W * (0.46 if tall else 0.30)
+    body += svgbox(BOX, W*0.05, top + H*0.02, bw, -4)
+    for k in range(3):
+        body += svgbox(card(False), W*0.10 + k*bw*0.16, top - bw*0.02 + k*bw*0.03, bw*0.46, -20 + k*12, 'z-index:2')
+    body += sticker('Ships blank', W*0.06, top + bw*0.90, 48*u, OAK, ESP, -4)
+    cw = W * (0.70 if tall else 0.50)
+    cy = top + bw * (1.55 if tall else 1.05)
+    cx = W*0.06
+    ch = cw * 210 / 330
+    rot = -7
+    body += svgbox(card(False), cx, cy, cw, rot, 'filter:drop-shadow(0 30px 40px rgba(0,0,0,.28));z-index:3')
+    pw = W * (0.52 if tall else 0.31)
+    px, py = (W*0.56, cy - W*0.50) if tall else (W*0.54, cy - H*0.10)
+    body += phone('drink', px, py, pw, 9)
+    # tap rings centred on the card's chip (225, 98 in the card's 330 x 210 box), after the card's rotation
+    import math
+    dx, dy = (225/330 - 0.5) * cw, (98/210 - 0.5) * ch
+    a = math.radians(rot)
+    tx = cx + cw/2 + dx*math.cos(a) - dy*math.sin(a)
+    ty = cy + ch/2 + dx*math.sin(a) + dy*math.cos(a)
+    for k, r in enumerate((60, 110, 160)):
+        body += f'<div class="abs" style="z-index:6;left:{tx - r*u}px;top:{ty - r*u}px;width:{2*r*u}px;height:{2*r*u}px;border-radius:50%;border:{8*u}px solid {VERDE};opacity:{0.7 - k*0.2}"></div>'
     if tall:
-        body += breakout('help', (10, 190, 383, 440), W*0.08, ry + 4*fs*1.9 + H*0.02, W*0.84, 2, VERDE, 40*u)
-    else:
-        body += f'<div class="body abs" style="left:{W*0.10}px;top:{H*0.95 - 46*u}px;font-size:{40*u}px;color:{WALNUT}">Help in the app says what to search for.</div>'
+        body += beans(random.Random(4), W, H, 7, [VERDE, OAK, DEEP], 0.84, 0.97, u)
+    body += sticker('✓ Ready to use', cx + cw*0.02, cy + ch + (H*0.05 if tall else H*0.03), 70*u, VERDE, CREAM, -3)
     return wrap(W, H, CREAM, body)
 
 def f5_night(W, H):
@@ -255,7 +273,8 @@ FRAMES = [f1_owner, f2_again, f3_tap, f4_card, f5_night, f6_copy, f7_growers, f8
 
 def feature(W=1024, H=500):
     body = f'<div class="hl abs" style="left:56px;top:110px;font-size:80px;color:{CREAM}">Own a Berlin?<span style="color:{POP}">Keep it brewing.</span></div>'
-    body += sticker('Coffee card writer and reader', 60, 310, 28, ESP, CREAM, -2)
+    body += f'<div class="body abs" style="left:60px;top:290px;font-size:30px;color:{CREAM}">For <b style="color:{POP}">Bonaverde Berlin</b> owners</div>'
+    body += sticker('Coffee card writer and reader', 60, 350, 28, ESP, CREAM, -2)
     body += svgbox(PLANE, 640, 30, 200, -6) + svgbox(CHUTE, 640, 100, 64) + svgbox(card(False), 642, 160, 56, 8)
     body += svgbox(machine('fg'), 800, 150, 190)
     return wrap(W, H, VERDE, body)
@@ -273,8 +292,6 @@ async def main():
             await pg.set_viewport_size({'width': W, 'height': H})
             for i, fn in enumerate(FRAMES):
                 await shot(fn(W, H), f'{OUT}/{store}/{i+1:02d}-{W}x{H}.png')
-            if VARIANT_B:
-                await shot(f1_owner(W, H, True), f'{OUT}/{store}/01b-{W}x{H}.png')
         await pg.set_viewport_size({'width': 1024, 'height': 500})
         await shot(feature(), f'{OUT}/google/feature-graphic-1024x500.png')
         await b.close()

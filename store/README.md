@@ -60,16 +60,16 @@ Each frame sells one job an owner has, with its own layout:
 
 | # | Headline | The job | Layout |
 |---|---|---|---|
-| 1 | Own a Berlin coffee machine? Keep it brewing. | Will this keep my machine going? | Airdrop onto the machine, home screen |
+| 1 | Own a Berlin coffee machine? Keep it brewing. ("For Bonaverde Berlin owners" under it) | Will this keep my machine going? | Airdrop onto the machine, home screen |
 | 2 | Out of cards? Brewing again. | My cards ran out and the company is gone | Before and after split |
 | 3 | Your usual pot. One tap. | Make my pot without thinking | Straight phone, giant button with tap rings |
-| 4 | Know exactly which card to buy. | Which blank card works? | Card close-up and a checklist |
+| 4 | Buy a card online. Program it. Brew. | Where do I get cards now? | Box of blank cards, one card tapped on the phone, Ready to use |
 | 5 | Roast tonight. Wake up to coffee. | Coffee ready when I wake up | Night into sunrise |
 | 6 | Down to your last card? Copy it. | Save my last original card | One card in, copies out |
 | 7 | Roasted fresh. Grown with care. | Love for the coffee and its growers | Woodgrain, type first |
 | 8 | No account. No ads. No tracking. Just coffee. | Is there a catch? | Stacked manifesto, phone peeking in |
 
-`store/screenshots/alternates/` holds frame 1 with the machine named in full ("Own a Bonaverde Berlin?"). It is clearer in search but puts a third-party brand in the image; pick one before upload.
+The brand is named once, under the frame 1 headline, never in a headline. The exact card to buy (with what not to buy) lives in the app's Help, not in the store images.
 
 ## Release checklist
 
