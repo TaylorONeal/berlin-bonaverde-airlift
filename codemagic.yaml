@@ -66,7 +66,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.berlinairlift.app
       vars:
-        APP_STORE_APPLE_ID: "0000000000" # replace with the App Store Connect record's Apple ID
+        APP_STORE_APPLE_ID: "6834037666" # Berlin Airlift for Bonaverde in App Store Connect
         STORE_BUILD: "1"
     triggering: *release_trigger
     scripts:
