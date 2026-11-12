@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tayloroneal.berlinairlift",
+      "bundleIdentifier": "com.berlinairlift.app",
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -22,7 +22,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.tayloroneal.berlinairlift",
+      "package": "com.berlinairlift.app",
       "versionCode": 1,
       "permissions": [
         "android.permission.NFC"

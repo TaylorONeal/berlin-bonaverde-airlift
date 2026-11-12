@@ -1,0 +1,32 @@
+Your Bonaverde Berlin still works. It just needs a card.
+
+Berlin Airlift is a free, community-made app that writes the NFC cards the Bonaverde Berlin coffee machine reads to roast, grind and brew. Same machine, same green beans (some owners write it Bona Verde), and a simple way to keep it going.
+
+HOW IT WORKS
+• Pick a drink, like Full Pot, Half Pot or Overnight.
+• Tap Write a card and hold a blank card to your phone.
+• Put the card in your Berlin and press its button.
+
+WHAT YOU CAN DO
+• Write cards to roast, grind and brew, or any one of those on its own.
+• Pick light, medium or dark roasts, or roast tonight and brew in the morning.
+• Choose reusable cards or single-use cards like the originals.
+• Check what is on a card you already have, and copy it to a blank one.
+• Write care cards: descale, clean the grinder, reset the air filter count.
+
+WHICH CARD TO BUY
+Blank MIFARE Ultralight EV1 cards or stickers, chip MF0UL11, 13.56 MHz. A listing that only says "NFC card", or names NTAG or MIFARE Classic, is a different chip and will not work. Help in the app shows exactly what to search for.
+
+WHAT YOU NEED
+• A Bonaverde Berlin roast, grind and brew coffee machine.
+• Blank MIFARE Ultralight EV1 cards or stickers.
+• Your own green coffee beans.
+• An iPhone or Android phone with NFC.
+
+MADE BY OWNERS, FOR OWNERS
+We love fresh-roasted coffee and the growers behind it, especially the small co-ops in places like Guatemala. Berlin Airlift is built by the community so every Berlin can keep roasting, grinding and brewing.
+
+FREE, PRIVATE, OPEN SOURCE
+No account, no ads, no tracking, no in-app purchases. The code is open source under Apache 2.0, and the card format comes from the work of the VerdeNFC and hackaverde projects.
+
+Berlin Airlift is an independent community project. It is not made, endorsed or supported by Bonaverde or by the owners of the Bonaverde and Berlin trademarks. Bonaverde and Berlin are trademarks of their respective owners and are named here only to say which machine the app works with.

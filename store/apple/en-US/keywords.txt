@@ -1,0 +1,1 @@
+nfc,tag,green,bean,roaster,grinder,brewer,machine,pouch,maker,mifare,ultralight,descale,roast,brew

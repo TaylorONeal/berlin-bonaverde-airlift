@@ -13,8 +13,8 @@ Rules (from the store-screenshot-sets skill and Apple 2.3.7): real captures only
 | 3 | Hold it. / Done. | Done state: check, "Full Pot card ready." |
 | 4 | Your beans. / Your roast. | Drink sheet, Medium Roast picked |
 | 5 | Roast tonight. / Wake up brewed. | Drink sheet, Overnight picked, pause showing 10 h |
-| 6 | No account. / No tracking. | More sheet, About block |
-| 7 | Open source. / Made by owners. | More sheet, credits to VerdeNFC and hackaverde |
+| 6 | No account. / No tracking. | More sheet, Open source block |
+| 7 | Made by owners. / For owners. | More sheet, About and Thank you |
 | 8 | Keep your Berlin / brewing. | What's on this card? result: "Your machine will take it. Reusable." |
 
 Frames 1 to 3 carry the listing, so the top terms ("coffee", "card", "roast") sit in their plain words. Frame 7 changed from the plan's "Free. Open source. Forever." because store images can't use price words.
@@ -29,9 +29,9 @@ Frames 1 to 3 carry the listing, so the top terms ("coffee", "card", "roast") si
 
 ## How to capture (needs a dev build on real phones)
 
-1. Install the dev build, open More, switch on Demo mode, so no real card is needed and the "Demo" tag can be cropped.
+1. Install a development build started with `EXPO_PUBLIC_DEMO=1`, so the pretend card answers instead of a real one. The screens look exactly as they ship; there is no demo label to crop.
 2. Clean status bar (Pixel: `demo.sh on`; iPhone: 9:41, full battery).
 3. Take the eight screens above. iPhone captures go only in App Store frames, Pixel captures only in Play frames.
 4. Add `set_berlinairlift.py` next to `engine.py` in the store-sets working copy on the Mac and render. Check every frame at full size and in the 30 percent strip.
 
-Blocked here: this cloud session has no phone, emulator or browser renderer, so the captures and renders wait for the device test (BA-4).
+Drafts made from the web preview are in `store/screenshots/` (rendered Nov 12 with headless Chromium). They are stand-ins until the real-phone captures replace the screen in each frame.

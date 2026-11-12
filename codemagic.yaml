@@ -1,6 +1,43 @@
 # Codemagic CI for Berlin Airlift.
-# checks: runs on every push and pull request. Store build workflows are added
-# in BA-7, once the Apple and Google accounts and signing are set up.
+#
+# checks          every push and pull request: typecheck, tests, checksum cross-check.
+# ios-release     on a v* tag: builds the iPhone app and sends it to TestFlight.
+#                 It never submits for App Store review; that stays a person's click.
+# android-release on a v* tag: builds the Play bundle and uploads it to the internal
+#                 testing track as a draft. Production stays a person's click.
+#
+# One-time setup in Codemagic (app settings, not this file):
+#   - Apple: an App Store Connect API key added under Integrations > Developer Portal.
+#     Set its name below (integrations.app_store_connect).
+#   - Apple: the bundle id com.berlinairlift.app registered with the NFC Tag Reading
+#     capability, and an App Store Connect app record for it.
+#     Put that record's Apple ID in APP_STORE_APPLE_ID.
+#   - Android: an upload keystore added under Code signing identities with the
+#     reference name berlin_airlift_upload.
+#   - Android: a Google Play service account JSON saved as the secret
+#     GCLOUD_SERVICE_ACCOUNT_CREDENTIALS in an environment group named google_play.
+# Store builds leave the pretend card out: EXPO_PUBLIC_DEMO is never set here.
+
+definitions:
+  app_checks: &app_checks
+    - name: Install
+      working_directory: app
+      script: npm ci
+    - name: Typecheck
+      working_directory: app
+      script: npx tsc --noEmit
+    - name: Protocol and screen tests
+      working_directory: app
+      script: npx jest --ci
+    - name: Python cross-check
+      script: python3 tools/verify_checksums.py
+  release_trigger: &release_trigger
+    events:
+      - tag
+    tag_patterns:
+      - pattern: 'v*'
+        include: true
+
 workflows:
   checks:
     name: Typecheck and protocol tests
@@ -12,15 +49,105 @@ workflows:
       events:
         - push
         - pull_request
+    scripts: *app_checks
+
+  ios-release:
+    name: iOS release to TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: app-store-connect
+    environment:
+      node: 22
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.berlinairlift.app
+      vars:
+        APP_STORE_APPLE_ID: "0000000000" # replace with the App Store Connect record's Apple ID
+        STORE_BUILD: "1"
+    triggering: *release_trigger
     scripts:
       - name: Install
         working_directory: app
         script: npm ci
-      - name: Typecheck
+      - name: Typecheck and tests
         working_directory: app
-        script: npx tsc --noEmit
-      - name: Protocol golden tests
+        script: npx tsc --noEmit && npx jest --ci
+      - name: Generate the iOS project
         working_directory: app
-        script: npx jest --ci
-      - name: Python cross-check
-        script: python3 tools/verify_checksums.py
+        script: |
+          npx expo prebuild --platform ios --clean --no-install
+          cd ios && pod install
+      - name: Set the build number
+        working_directory: app/ios
+        script: |
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          agvtool new-version -all $((LATEST + 1))
+      - name: Use the signing profiles
+        script: xcode-project use-profiles
+      - name: Build the iPhone app
+        script: |
+          xcode-project build-ipa \
+            --workspace app/ios/BerlinAirlift.xcworkspace \
+            --scheme BerlinAirlift
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  android-release:
+    name: Android release to Play internal testing
+    instance_type: linux_x2
+    max_build_duration: 45
+    environment:
+      node: 22
+      java: 17
+      android_signing:
+        - berlin_airlift_upload
+      groups:
+        - google_play
+      vars:
+        PACKAGE_NAME: com.berlinairlift.app
+        STORE_BUILD: "1"
+    triggering: *release_trigger
+    scripts:
+      - name: Install
+        working_directory: app
+        script: npm ci
+      - name: Typecheck and tests
+        working_directory: app
+        script: npx tsc --noEmit && npx jest --ci
+      - name: Generate the Android project
+        working_directory: app
+        script: npx expo prebuild --platform android --clean --no-install
+      - name: Set the version code
+        working_directory: app/android
+        script: |
+          LATEST=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME" || echo 0)
+          NEXT=$((LATEST + 1))
+          sed -i.bak -E "s/versionCode [0-9]+/versionCode $NEXT/" app/build.gradle
+          grep -n "versionCode" app/build.gradle
+      - name: Build the Play bundle
+        working_directory: app/android
+        script: ./gradlew bundleRelease
+      - name: Sign with the upload key
+        working_directory: app/android/app/build/outputs/bundle/release
+        script: |
+          zip -q -d app-release.aab 'META-INF/*' || true
+          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore "$CM_KEYSTORE_PATH" -storepass "$CM_KEYSTORE_PASSWORD" -keypass "$CM_KEY_PASSWORD" \
+            app-release.aab "$CM_KEY_ALIAS"
+          jarsigner -verify app-release.aab
+    artifacts:
+      - app/android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
