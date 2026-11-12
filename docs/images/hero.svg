@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="t d">
+  <title id="t">Berlin Airlift</title>
+  <desc id="d">A cargo plane drops a coffee pouch on a parachute toward a curved wooden coffee roaster.</desc>
+  <defs>
+    <linearGradient id="oak" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D9B485"/><stop offset="1" stop-color="#C99B66"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="1" stop-color="#EADFCB" stop-opacity="0.6"/></linearGradient>
+  </defs>
+  <rect width="1200" height="420" rx="28" fill="#F6EFE3"/>
+  <path d="M0 330 C 300 290, 600 360, 1200 300 L 1200 420 L 0 420 Z" fill="#EADFCB"/>
+  <path d="M0 360 C 320 330, 640 390, 1200 340" stroke="#C99B66" stroke-opacity="0.35" stroke-width="3" fill="none"/>
+  <path d="M0 384 C 340 360, 660 410, 1200 368" stroke="#C99B66" stroke-opacity="0.25" stroke-width="2" fill="none"/>
+  <!-- words -->
+  <text x="70" y="160" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-weight="800" font-size="84" fill="#2A1B12">Berlin Airlift</text>
+  <text x="72" y="216" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" fill="#6B5444">Coffee cards for your Bonaverde Berlin.</text>
+  <text x="72" y="256" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" fill="#6B5444">Made by owners, for owners.</text>
+  <rect x="72" y="284" width="250" height="52" rx="26" fill="#17703D"/>
+  <text x="197" y="318" text-anchor="middle" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-weight="800" font-size="22" fill="#FFFFFF">Write a card</text>
+  <!-- plane -->
+  <g transform="translate(700 46)">
+    <rect x="0" y="16" width="190" height="34" rx="17" fill="#5B3A26"/>
+    <path d="M60 30 L 120 -6 L 136 -6 L 110 30 Z" fill="#5B3A26"/>
+    <path d="M70 46 L 124 80 L 140 80 L 112 46 Z" fill="#5B3A26" fill-opacity="0.85"/>
+    <path d="M166 18 L 190 -8 L 200 -8 L 192 24 Z" fill="#5B3A26"/>
+    <circle cx="30" cy="33" r="5" fill="#7BE495"/><circle cx="48" cy="33" r="5" fill="#7BE495"/><circle cx="66" cy="33" r="5" fill="#7BE495"/>
+  </g>
+  <!-- parachute + pouch -->
+  <g transform="translate(838 120)">
+    <path d="M0 40 C 0 0, 90 0, 90 40 Z" fill="#17703D"/>
+    <path d="M0 40 L 34 104 M90 40 L 56 104 M45 40 L 45 104" stroke="#5B3A26" stroke-width="2"/>
+    <path d="M28 104 L 62 104 L 66 150 C 66 156, 24 156, 24 150 Z" fill="#C99B66"/>
+    <rect x="34" y="118" width="22" height="12" rx="6" fill="#17703D"/>
+    <circle cx="40" cy="124" r="2.5" fill="#7BE495"/><circle cx="50" cy="124" r="2.5" fill="#7BE495"/>
+  </g>
+  <!-- machine -->
+  <g transform="translate(980 150) scale(1.15)">
+    <path d="M40 200 C 20 200, 14 180, 18 150 L 34 70 C 40 40, 60 26, 100 26 C 140 26, 160 40, 166 70 L 182 150 C 186 180, 180 200, 160 200 Z" fill="url(#oak)"/>
+    <path d="M48 190 C 34 188, 32 172, 35 150 L 50 76 C 55 52, 72 42, 100 42" stroke="#5B3A26" stroke-opacity="0.18" stroke-width="3" fill="none"/>
+    <rect x="70" y="52" width="60" height="56" rx="28" fill="url(#glass)" stroke="#5B3A26" stroke-opacity="0.25"/>
+    <circle cx="88" cy="88" r="5" fill="#17703D"/><circle cx="102" cy="94" r="5" fill="#17703D"/><circle cx="114" cy="84" r="5" fill="#17703D"/>
+    <rect x="76" y="128" width="48" height="8" rx="4" fill="#5B3A26" fill-opacity="0.55"/>
+    <circle cx="100" cy="160" r="12" fill="#17703D"/><circle cx="100" cy="160" r="5" fill="#7BE495"/>
+  </g>
+</svg>

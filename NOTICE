@@ -1,0 +1,28 @@
+Berlin Airlift
+Copyright 2026 Taylor O'Neal
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It includes protocol behaviour first published in VerdeNFC:
+
+  VerdeNFC: mobile app for writing NFC tags used by the Bonaverde
+  Berlin roasting, grinding and brewing machine
+  Copyright 2020 Bernd Trappe (btrappe)
+  https://github.com/btrappe/VerdeNFC
+  Licensed under the Apache License, Version 2.0.
+
+Berlin Airlift's code is written fresh in TypeScript. What it carries over from VerdeNFC is behaviour the machine
+requires byte for byte: the CRC16 single-use and multi-use and CRC8
+checksum algorithms, the tag merge and write model, the pause stepping,
+and the profile templates (originally collected by VerdeNFC from the
+Bonaverde owner community, the Hackaverde group, Craig Whyte and
+Michael Grundler).
+
+The NFC tag layout and the published card dumps used as test vectors
+come from hackaverde (PostalBlab and contributors):
+https://github.com/PostalBlab/hackaverde
+
+Bonaverde and Berlin are trademarks of their respective owners.
+Berlin Airlift is an independent, unofficial, open-source project and is
+not affiliated with, endorsed by, or sponsored by Bonaverde or its
+successors.

@@ -1,0 +1,38 @@
+# --- Personal files: never committed ---
+personal/*
+!personal/README.md
+*.keystore
+*.jks
+keystore.properties
+local.properties
+
+# Your own tag dumps, card files and exports (keep local only)
+*.dump
+my-tags/
+tag-backups/
+
+# --- Android / Gradle build output ---
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# --- IDE ---
+.idea/
+*.iml
+.DS_Store
+
+# --- Expo / React Native app ---
+node_modules/
+app/.expo/
+app/dist/
+app/web-build/
+app/ios/
+app/android/
+*.tsbuildinfo
+npm-debug.log*
+__pycache__/
+app/.claude/

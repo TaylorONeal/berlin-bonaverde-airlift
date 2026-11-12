@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
+  <title id="t">Which card to buy</title>
+  <desc id="d">Buy MIFARE Ultralight EV1, chip MF0UL11, 13.56 MHz, 48 bytes. Do not buy NTAG213, 215 or 216, MIFARE Classic 1K, 125 kHz cards, or Ultralight C, AES or Nano.</desc>
+  <rect width="1200" height="520" rx="28" fill="#F6EFE3"/>
+  <g font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <!-- buy -->
+    <rect x="40" y="40" width="540" height="440" rx="24" fill="#FFFFFF" stroke="#17703D" stroke-width="5"/>
+    <text x="80" y="100" font-size="20" font-weight="800" fill="#17703D" letter-spacing="2">BUY THIS</text>
+    <text x="80" y="156" font-family="Fraunces, Georgia, serif" font-size="40" font-weight="800" fill="#2A1B12">MIFARE Ultralight EV1</text>
+    <text x="80" y="210" font-size="24" fill="#2A1B12">Chip: NXP MF0UL11</text>
+    <text x="80" y="250" font-size="24" fill="#2A1B12">13.56 MHz</text>
+    <text x="80" y="290" font-size="24" fill="#2A1B12">48 bytes user memory (80 total)</text>
+    <text x="80" y="330" font-size="24" fill="#2A1B12">Blank, never written before</text>
+    <rect x="80" y="370" width="460" height="72" rx="16" fill="#EADFCB"/>
+    <text x="104" y="400" font-size="17" fill="#6B5444">Search for</text>
+    <text x="104" y="428" font-size="21" font-weight="700" fill="#2A1B12">"MIFARE Ultralight EV1 card"</text>
+    <!-- avoid -->
+    <rect x="620" y="40" width="540" height="440" rx="24" fill="#FFFFFF" stroke="#A6402A" stroke-width="3" stroke-dasharray="10 8"/>
+    <text x="660" y="100" font-size="20" font-weight="800" fill="#A6402A" letter-spacing="2">NOT THESE</text>
+    <g font-size="21" fill="#2A1B12">
+      <text x="660" y="160"><tspan font-weight="700">NTAG213 / 215 / 216</tspan></text>
+      <text x="660" y="186" font-size="17" fill="#6B5444">The usual "NFC sticker". Different chip.</text>
+      <text x="660" y="236"><tspan font-weight="700">MIFARE Classic 1K, "S50"</tspan></text>
+      <text x="660" y="262" font-size="17" fill="#6B5444">The usual "13.56 MHz RFID card". Wrong family.</text>
+      <text x="660" y="312"><tspan font-weight="700">125 kHz: EM4100, TK4100, T5577</tspan></text>
+      <text x="660" y="338" font-size="17" fill="#6B5444">Old-style RFID. Phones can't read them.</text>
+      <text x="660" y="388"><tspan font-weight="700">Ultralight C, AES or Nano</tspan></text>
+      <text x="660" y="414" font-size="17" fill="#6B5444">Same family name, different chips.</text>
+    </g>
+  </g>
+</svg>

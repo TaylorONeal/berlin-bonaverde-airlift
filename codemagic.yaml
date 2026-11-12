@@ -1,0 +1,26 @@
+# Codemagic CI for Berlin Airlift.
+# checks: runs on every push and pull request. Store build workflows are added
+# in BA-7, once the Apple and Google accounts and signing are set up.
+workflows:
+  checks:
+    name: Typecheck and protocol tests
+    instance_type: linux_x2
+    max_build_duration: 20
+    environment:
+      node: 22
+    triggering:
+      events:
+        - push
+        - pull_request
+    scripts:
+      - name: Install
+        working_directory: app
+        script: npm ci
+      - name: Typecheck
+        working_directory: app
+        script: npx tsc --noEmit
+      - name: Protocol golden tests
+        working_directory: app
+        script: npx jest --ci
+      - name: Python cross-check
+        script: python3 tools/verify_checksums.py
