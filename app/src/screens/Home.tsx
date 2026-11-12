@@ -12,7 +12,7 @@ import { HoldButton } from '../ui/HoldButton';
 import { PressScale } from '../ui/Pressable';
 import { color, radius, shadow, space, touch, type } from '../ui/tokens';
 import { summaryLine, templateFor } from './cardFor';
-import { WHAT_IT_IS } from '../content/help';
+import { OWNER_BADGE, WHAT_IT_IS } from '../content/help';
 import { DrinkSheet } from './DrinkSheet';
 import { HelpSheet } from './HelpSheet';
 import { MoreSheet } from './MoreSheet';
@@ -142,6 +142,7 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
               </View>
         </View>
         <Text style={styles.subtitle}>Coffee Card Writer & Reader</Text>
+        <View style={styles.owner}><Text style={styles.ownerText}>{OWNER_BADGE}</Text></View>
       </View>
 
       <View style={styles.middle} onLayout={(e) => setMiddleH(e.nativeEvent.layout.height)}>
@@ -251,6 +252,8 @@ const styles = StyleSheet.create({
   moreBtn: { minHeight: 44, minWidth: 56, paddingHorizontal: space.m, borderRadius: radius.pill, backgroundColor: 'rgba(246,239,227,0.7)', alignItems: 'center', justifyContent: 'center' },
   moreText: { fontSize: 15, fontWeight: '700', color: color.walnut },
   subtitle: { fontSize: 15, fontWeight: '700', color: color.walnut, marginTop: 2 },
+  owner: { alignSelf: 'flex-start', marginTop: space.s, borderRadius: radius.pill, backgroundColor: color.espresso, paddingHorizontal: space.m, paddingVertical: 6 },
+  ownerText: { fontSize: 14, fontWeight: '800', color: color.cream },
   middle: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: space.l, paddingTop: space.l, paddingBottom: space.xxl, overflow: 'hidden' },
   msg: { alignItems: 'center', gap: space.m },
   whatItIs: { ...type.body, color: color.bark, textAlign: 'center', maxWidth: 340 },

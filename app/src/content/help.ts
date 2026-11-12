@@ -4,8 +4,11 @@
  * Card facts: NXP MF0ULX1 data sheet (Rev. 3.3) and NXP MIFARE Ultralight EV1 fact sheet.
  */
 
+/** Shown first on Home so nobody installs this without the machine. */
+export const OWNER_BADGE = 'For Bonaverde Berlin owners';
+
 export const WHAT_IT_IS =
-  'Write the cards your Bonaverde Berlin needs to roast, grind and brew. Made by owners, for owners.';
+  'Already have a Bonaverde Berlin coffee machine? Write the cards it needs to roast, grind and brew. Made by owners, for owners.';
 
 export interface HelpTopic {
   q: string;

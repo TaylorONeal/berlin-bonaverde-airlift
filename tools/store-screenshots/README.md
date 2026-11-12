@@ -13,7 +13,15 @@ mkdir -p $W/preview $W/cap
 python3 -I tools/store-screenshots/build_preview.py $W
 python3 -I tools/store-screenshots/capture.py $W          # screens at 393x852 @3x
 python3 -I tools/store-screenshots/capture_pause.py $W    # drink sheet scrolled to the pause
-python3 -I tools/store-screenshots/compose.py $W app/node_modules/@expo-google-fonts/fraunces store/screenshots
+python3 -I tools/store-screenshots/compose.py $W app/node_modules/@expo-google-fonts/fraunces store/screenshots --variant-b
 ```
 
-Rules the frames follow: real app screens only, nothing drawn inside a screen except covers that hide a third-party brand name, no price words, no brand names or logos, no em dashes, one idea per frame.
+Rules the frames follow:
+
+- One owner job per frame, said as the owner would say it ("Out of cards?"), and the payoff as the second line ("Brewing again.").
+- Every frame gets its own layout. If two frames would share a composition, change one. The headline position, the phone's angle and size, and the colour block all vary.
+- At least one frame shows the before and after; at least one shows no phone at all.
+- Frame 1 says who the app is for. This app only helps people who own the machine.
+- Real app screens only, nothing drawn inside a screen. Drawings (machine, cards, plane) sit outside screens.
+- No price words in headlines, no em dashes.
+- `--variant-b` also writes frame 1 with the machine named in full, to `01b-*` files.

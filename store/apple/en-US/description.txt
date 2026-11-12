@@ -1,4 +1,6 @@
-Your Bonaverde Berlin still works. It just needs a card.
+For people who already own a Bonaverde Berlin roast, grind and brew coffee machine. You need the machine for this app to do anything.
+
+Your Berlin still works. It just needs a card.
 
 Berlin Airlift is a free, community-made app that writes the NFC cards the Bonaverde Berlin coffee machine reads to roast, grind and brew. Same machine, same green beans (some owners write it Bona Verde), and a simple way to keep it going.
 

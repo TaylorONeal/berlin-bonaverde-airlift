@@ -47,8 +47,9 @@ it('explains a failed write in plain words', async () => {
   expect(screen.getByText('Try again')).toBeTruthy();
 });
 
-it('says what the app is and offers help', async () => {
+it('says who the app is for, what it is, and offers help', async () => {
   await setup();
-  expect(screen.getByText(/Write the cards your Bonaverde Berlin needs/)).toBeTruthy();
+  expect(screen.getByText('For Bonaverde Berlin owners')).toBeTruthy();
+  expect(screen.getByText(/Already have a Bonaverde Berlin coffee machine/)).toBeTruthy();
   expect(screen.getByLabelText('Help')).toBeTruthy();
 });

@@ -54,7 +54,22 @@ The review video is still to record on a real iPhone with a real card (see the r
 
 ## Screenshots
 
-Drafts, rendered from the app's web preview: `store/screenshots/apple/` (1320 x 2868, iPhone 6.9 inch) and `store/screenshots/google/` (1080 x 1920), plus `store/screenshots/google/feature-graphic-1024x500.png` (1024 x 500). Swap the screen inside each frame for a real phone capture after the device test; the store-screenshot rules say App Store frames must hold iPhone captures.
+Drafts, rendered from the app's web preview: `store/screenshots/apple/` (1320 x 2868, iPhone 6.9 inch) and `store/screenshots/google/` (1080 x 1920), plus `store/screenshots/google/feature-graphic-1024x500.png` (1024 x 500). Swap the screen inside each frame for a real phone capture after the device test; App Store frames must hold iPhone captures.
+
+Each frame sells one job an owner has, with its own layout:
+
+| # | Headline | The job | Layout |
+|---|---|---|---|
+| 1 | Own a Berlin coffee machine? Keep it brewing. | Will this keep my machine going? | Airdrop onto the machine, home screen |
+| 2 | Out of cards? Brewing again. | My cards ran out and the company is gone | Before and after split |
+| 3 | Your usual pot. One tap. | Make my pot without thinking | Straight phone, giant button with tap rings |
+| 4 | Know exactly which card to buy. | Which blank card works? | Card close-up and a checklist |
+| 5 | Roast tonight. Wake up to coffee. | Coffee ready when I wake up | Night into sunrise |
+| 6 | Down to your last card? Copy it. | Save my last original card | One card in, copies out |
+| 7 | Roasted fresh. Grown with care. | Love for the coffee and its growers | Woodgrain, type first |
+| 8 | No account. No ads. No tracking. Just coffee. | Is there a catch? | Stacked manifesto, phone peeking in |
+
+`store/screenshots/alternates/` holds frame 1 with the machine named in full ("Own a Bonaverde Berlin?"). It is clearer in search but puts a third-party brand in the image; pick one before upload.
 
 ## Release checklist
 
