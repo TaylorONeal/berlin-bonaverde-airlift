@@ -217,9 +217,8 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
         visible={sheet === 'more'}
         prefs={prefs}
         history={history}
-        demo={demo}
         onChange={setPrefs}
-        onDemo={onDemo}
+        onHelp={() => setSheet('help')}
         onClose={() => setSheet(null)}
         onCare={(id) => {
           setSheet(null);

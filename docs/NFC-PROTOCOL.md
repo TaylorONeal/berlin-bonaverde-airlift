@@ -55,7 +55,7 @@ A German-language firmware note that circulates with the community tag libraries
 
 ## Checksums
 
-Both are ported byte-for-byte from VerdeNFC's `VerdeChecksums.cs` in `nfc/VerdeChecksums.kt`, and both are **verified against real published card dumps** by `tools/verify_checksums.py`.
+Both are ported byte-for-byte from VerdeNFC's `VerdeChecksums.cs` in `app/src/protocol/checksums.ts`, and both are **verified against real published card dumps** by `tools/verify_checksums.py`.
 
 ### CRC16: two variants, and why
 

@@ -134,7 +134,7 @@ NFC needs a development build (`expo-dev-client`), not Expo Go. Demo mode (a pre
 app/src/protocol/    card bytes: checksums, card image, pause scale, 33 community templates, the drink menu
 app/src/nfc/         iOS and Android card readers, write with read-back compare, a fake card for demo and tests
 app/src/screens/     one home screen and four sheets: drinks, what's on this card, help, more
-app/src/content/     help text shown in the app
+app/src/content/     help and about text shown in the app
 app/src/ui/          tokens, wood grain, hold-to-confirm, the curved-wood machine and the cargo plane
 tools/verify_checksums.py   independent Python check against real card dumps
 docs/                       story, card guide, protocol, menu, FAQ, design, store listing drafts

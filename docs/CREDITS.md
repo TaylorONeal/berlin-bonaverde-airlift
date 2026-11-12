@@ -8,7 +8,7 @@ Berlin Airlift is a remix, and it says so loudly. Every load-bearing piece of kn
 - Repo: https://github.com/btrappe/VerdeNFC
 - What we took from it (with gratitude, and by porting, not by pretending):
   - The complete set of 33 roast / grind / brew / maintenance profile templates (`app/src/protocol/profiles.ts` here is a transcription of the `RoastProfiles` list in its `MainTabViewModel.cs`).
-  - The checksum algorithms (`nfc/VerdeChecksums.kt` here is a line-faithful Kotlin port of its `VerdeNFC/VerdeNFC/Util/VerdeChecksums.cs`): CRC16 single-use, CRC16 multi-use, CRC8.
+  - The checksum algorithms (`app/src/protocol/checksums.ts` here is a line-faithful TypeScript port of its `VerdeNFC/VerdeNFC/Util/VerdeChecksums.cs`): CRC16 single-use, CRC16 multi-use, CRC8.
   - The write model: read the destination card's first 16 bytes, merge, recompute both checksums, write pages 4 to 15 of a Mifare Ultralight EV1.
   - The pause-after-roast stepping (1-minute steps to 2h, 5-minute to 6h, 15-minute to 24h) and its decoded tag interpretation.
 - VerdeNFC's own README credits: "the dedicated Facebook group and especially Hackaverde, Craig Whyte and Michael Grundler who delivered important information without [which] this app wouldn't be possible."

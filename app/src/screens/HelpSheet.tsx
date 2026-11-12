@@ -4,7 +4,7 @@ import { CARD_TO_BUY, HELP } from '../content/help';
 import { PressScale } from '../ui/Pressable';
 import { Sheet } from '../ui/Sheet';
 import { color, radius, space, type } from '../ui/tokens';
-import { TRADEMARK_NOTICE } from './MoreSheet';
+import { TRADEMARK_NOTICE } from '../content/about';
 
 /** Plain answers, most-asked first. The card to buy is pinned at the top. */
 export function HelpSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
@@ -42,7 +42,8 @@ export function HelpSheet({ visible, onClose }: { visible: boolean; onClose: () 
         );
       })}
 
-      <Text style={[type.caption, { marginTop: space.l }]}>{TRADEMARK_NOTICE}</Text>
+      <Text style={[type.secondary, { marginTop: space.l }]}>The story behind the app and the people we thank are in More, under About.</Text>
+      <Text style={[type.caption, { marginTop: space.m }]}>{TRADEMARK_NOTICE}</Text>
     </Sheet>
   );
 }

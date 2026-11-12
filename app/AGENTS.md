@@ -46,4 +46,5 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `npx expo install` can't reach api.expo.dev (offline or sandboxed), pin versions from `node_modules/expo/bundledNativeModules.json` instead.
 - Demo mode is for development, the web preview and review builds only. Store builds hide it (`src/config.ts`, `EXPO_PUBLIC_DEMO=1` to keep it).
 - Help text lives in `src/content/help.ts`. The card-buying advice there must match `docs/CARDS.md` and the README.
+- About text (story, thanks, open-source note, trademark notice) lives in `src/content/about.ts`. Keep it in step with the README "Why it exists" and "Credits" sections and `docs/CREDITS.md`.
 - Copy rules: plain words a non-technical owner understands ("Write a card", not "program a tag"), no em dashes, never call the app AI-powered, keep the trademark notice.

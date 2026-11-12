@@ -17,3 +17,19 @@ it('names the exact card to buy and the look-alikes to avoid', async () => {
   expect(screen.getByText(/NTAG213, NTAG215, NTAG216/)).toBeTruthy();
   expect(screen.getByText(/MIFARE Classic 1K/)).toBeTruthy();
 });
+
+it('More carries the story, the thanks, the code link and the trademark notice', async () => {
+  const { MoreSheet } = require('../MoreSheet');
+  const onHelp = jest.fn();
+  await render(
+    <SafeAreaProvider initialMetrics={metrics}>
+      <MoreSheet visible prefs={{ multiUse: true, haptics: true } as any} history={[]} onChange={() => {}} onCare={() => {}} onHelp={onHelp} onClose={() => {}} />
+    </SafeAreaProvider>,
+  );
+  expect(screen.getByText(/small co-ops in places like Guatemala/)).toBeTruthy();
+  expect(screen.getByText('VerdeNFC by Bernd Trappe')).toBeTruthy();
+  expect(screen.getByText('See the code on GitHub')).toBeTruthy();
+  expect(screen.getByText(/independent community project/)).toBeTruthy();
+  await fireEvent.press(screen.getByText('Which card to buy, and how it works'));
+  expect(onHelp).toHaveBeenCalled();
+});
