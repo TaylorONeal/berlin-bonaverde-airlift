@@ -13,7 +13,6 @@ import { PressScale } from '../ui/Pressable';
 import { color, radius, shadow, space, touch, type } from '../ui/tokens';
 import { summaryLine, templateFor } from './cardFor';
 import { WHAT_IT_IS } from '../content/help';
-import { DEMO_ALLOWED } from '../config';
 import { DrinkSheet } from './DrinkSheet';
 import { HelpSheet } from './HelpSheet';
 import { MoreSheet } from './MoreSheet';
@@ -138,17 +137,11 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
       <View style={styles.shell}>
         <Grain />
         <View style={styles.topRow}>
-          <Text style={styles.brand} accessibilityRole="header">Berlin Airlift</Text>
-          <View style={styles.topBtns}>
-            <PressScale onPress={() => setSheet('help')} style={styles.moreBtn} accessibilityRole="button" accessibilityLabel="Help">
-              <Text style={styles.moreText}>Help</Text>
-            </PressScale>
-            <PressScale onPress={() => setSheet('more')} style={styles.moreBtn} accessibilityRole="button" accessibilityLabel="More">
-              <Text style={styles.moreText}>More</Text>
-            </PressScale>
-          </View>
+          <View style={{ flexShrink: 1 }}>
+            <Text style={styles.brand} accessibilityRole="header">Berlin Airlift</Text>
+              </View>
         </View>
-        {demo && <Text style={styles.demoTag}>Demo. Nothing real is written.</Text>}
+        <Text style={styles.subtitle}>Coffee Card Writer & Reader</Text>
       </View>
 
       <View style={styles.middle} onLayout={(e) => setMiddleH(e.nativeEvent.layout.height)}>
@@ -199,11 +192,12 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
           <PressScale onPress={() => setSheet('read')} disabled={busy} style={styles.quiet} accessibilityRole="button">
             <Text style={styles.quietText}>What's on this card?</Text>
           </PressScale>
-          {!demo && DEMO_ALLOWED && (
-            <PressScale onPress={() => onDemo(true)} disabled={busy} style={styles.quiet} accessibilityRole="button">
-              <Text style={styles.quietText}>No card handy? Try a demo</Text>
-            </PressScale>
-          )}
+          <PressScale onPress={() => setSheet('help')} disabled={busy} style={styles.quiet} accessibilityRole="button" accessibilityLabel="Help">
+            <Text style={styles.quietText}>Help</Text>
+          </PressScale>
+          <PressScale onPress={() => setSheet('more')} disabled={busy} style={styles.quiet} accessibilityRole="button" accessibilityLabel="More">
+            <Text style={styles.quietText}>More</Text>
+          </PressScale>
         </View>
       </View>
 
@@ -253,12 +247,12 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.cream },
   shell: { backgroundColor: color.oak, marginHorizontal: space.m, marginTop: space.s, borderRadius: radius.card, overflow: 'hidden', padding: space.l, ...shadow },
   topBtns: { flexDirection: 'row', gap: space.s },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  brand: { ...type.title, color: color.espresso },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.s },
+  brand: { ...type.title, fontSize: 28, lineHeight: 34, color: color.espresso },
   moreBtn: { minHeight: 44, minWidth: 56, paddingHorizontal: space.m, borderRadius: radius.pill, backgroundColor: 'rgba(246,239,227,0.7)', alignItems: 'center', justifyContent: 'center' },
   moreText: { fontSize: 15, fontWeight: '700', color: color.walnut },
-  demoTag: { ...type.caption, color: color.walnut, marginTop: space.s, fontWeight: '600' },
-  middle: { flex: 1, justifyContent: 'center', paddingHorizontal: space.l, paddingVertical: space.l, overflow: 'hidden' },
+  subtitle: { fontSize: 15, fontWeight: '700', color: color.walnut, marginTop: 2 },
+  middle: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: space.l, paddingTop: space.l, paddingBottom: space.xxl, overflow: 'hidden' },
   msg: { alignItems: 'center', gap: space.m },
   whatItIs: { ...type.body, color: color.bark, textAlign: 'center', maxWidth: 340 },
   done: { alignItems: 'center', gap: space.s },
@@ -270,7 +264,7 @@ const styles = StyleSheet.create({
   summary: { minHeight: touch.min, borderRadius: radius.pill, backgroundColor: color.paper, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.l },
   summaryText: { fontSize: 17, fontWeight: '600', color: color.espresso, flexShrink: 1 },
   change: { fontSize: 15, fontWeight: '700', color: color.verde },
-  quietRow: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: space.s },
+  quietRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: space.s },
   quiet: { minHeight: 44, paddingHorizontal: space.s, justifyContent: 'center' },
   quietText: { fontSize: 15, fontWeight: '600', color: color.bark },
 });

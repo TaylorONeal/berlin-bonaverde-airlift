@@ -5,7 +5,6 @@ import { HistoryEntry, Prefs } from '../state/store';
 import { HoldButton } from '../ui/HoldButton';
 import { Machine } from '../ui/Machine';
 import { Sheet } from '../ui/Sheet';
-import { DEMO_ALLOWED } from '../config';
 import { color, radius, space, type } from '../ui/tokens';
 
 export const TRADEMARK_NOTICE =
@@ -37,7 +36,6 @@ export function MoreSheet({ visible, prefs, history, demo, onChange, onCare, onD
       <View style={styles.block}>
         <Row label="Reusable cards" hint="Off makes single-use cards, like the originals." value={prefs.multiUse} onChange={(v) => onChange({ multiUse: v })} />
         <Row label="Haptics" value={prefs.haptics} onChange={(v) => onChange({ haptics: v })} />
-        {DEMO_ALLOWED && <Row label="Demo mode" hint="Practice with a pretend card." value={demo} onChange={onDemo} />}
       </View>
 
       <Text style={styles.label}>Cards you made</Text>
