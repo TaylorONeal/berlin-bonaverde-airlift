@@ -110,7 +110,7 @@ jobs:
           APP="app/ios/$(cat app_path.txt)"
           pick() { xcrun simctl list devices available -j | python3 -c "import json,sys;d=[x for r in json.load(sys.stdin)['devices'].values() for x in r if '$1' in x['name']];print(d[-1]['udid'] if d else '')"; }
           run() { # name, device match, text size
-            U=$(pick "$2"); [ -z "$U" ] && { echo "no $2 simulator"; xcrun simctl list devices available; return 1; }
+            U=$(pick "$2"); [ -z "$U" ] && { echo "no $2 simulator" | tee -a shots/failures.txt; return 0; }
             xcrun simctl boot "$U" || true; xcrun simctl bootstatus "$U" -b
             xcrun simctl ui "$U" content_size "$3"
             xcrun simctl install "$U" "$APP"
@@ -119,6 +119,12 @@ jobs:
             xcrun simctl shutdown "$U"
           }
           mkdir -p shots
+          # The runner image ships no small iPhone, so make an iPhone SE (375x667pt) if missing.
+          if [ -z "$(pick "iPhone SE")" ]; then
+            RT=$(xcrun simctl list runtimes -j | python3 -c "import json,sys;r=[x for x in json.load(sys.stdin)['runtimes'] if x['platform']=='iOS' and x['isAvailable']];print(r[-1]['identifier'])")
+            xcrun simctl create "iPhone SE (3rd generation)" com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation "$RT" \
+              || echo "could not create an iPhone SE simulator" >> shots/failures.txt
+          fi
           run ios-small "iPhone SE" medium
           run ios-small-bigtext "iPhone SE" extra-extra-large
           run ios-large "Pro Max" medium
