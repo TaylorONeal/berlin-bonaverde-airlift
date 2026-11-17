@@ -74,7 +74,7 @@ jobs:
             adb shell settings put system font_scale ${{ matrix.font }}
             adb shell wm size; adb shell wm density
             mkdir -p shots/${{ matrix.name }}
-            maestro test tools/layout-check/flow.yaml -e OUT=shots/${{ matrix.name }}
+            maestro test -e OUT=shots/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. shots/${{ matrix.name }}-debug/ || true; exit 1; }
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -115,7 +115,14 @@ jobs:
             xcrun simctl ui "$U" content_size "$3"
             xcrun simctl install "$U" "$APP"
             mkdir -p "shots/$1"
-            maestro --device "$U" test tools/layout-check/flow.yaml -e OUT="shots/$1" || echo "FLOW FAILED on $1" >> shots/failures.txt
+            if ! maestro --device "$U" test -e OUT="shots/$1" tools/layout-check/flow.yaml; then
+              echo "FLOW FAILED on $1" >> shots/failures.txt
+              mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. "shots/$1-debug/" || true
+              xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true
+              xcrun simctl spawn "$U" log show --last 3m --style compact --predicate 'process CONTAINS "BerlinAirlift" OR messageType == fault' > "shots/$1-debug/sim.log" 2>&1 || true
+              ls ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i berlin && cp ~/Library/Logs/DiagnosticReports/*Berlin* "shots/$1-debug/" 2>/dev/null || true
+              rm -rf ~/.maestro/tests/*
+            fi
             xcrun simctl shutdown "$U"
           }
           mkdir -p shots
