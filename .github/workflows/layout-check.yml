@@ -77,7 +77,10 @@ jobs:
             maestro test tools/layout-check/flow.yaml -e OUT=shots/${{ matrix.name }}
       - if: always()
         uses: actions/upload-artifact@v4
-        with: { name: shots-${{ matrix.name }}, path: shots, if-no-files-found: warn }
+        with:
+          name: shots-${{ matrix.name }}
+          path: shots
+          if-no-files-found: warn
 
   ios-shots:
     runs-on: macos-15
