@@ -1,21 +1,22 @@
 # Walks every screen of the demo build and takes a picture of each.
 # Run by .github/workflows/layout-check.yml on Android emulators and iPhone simulators.
+# iOS reads a button's accessibility label (which adds the drink line), so labels match with ".*".
 appId: com.berlinairlift.app
 ---
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: "Write a card"
+    visible: "Write a card.*"
     timeout: 60000
 - takeScreenshot: ${OUT}/01-home
-- tapOn: "Write a card"
+- tapOn: "Write a card.*"
 - extendedWaitUntil:
     visible: ".*card ready.*"
     timeout: 20000
 - waitForAnimationToEnd
 - takeScreenshot: ${OUT}/02-done
-- tapOn: "Write another"
-- tapOn: "Change"
+- tapOn: "Write another.*"
+- tapOn: ".*Change"
 - waitForAnimationToEnd
 - takeScreenshot: ${OUT}/03-drink
 - scrollUntilVisible:
