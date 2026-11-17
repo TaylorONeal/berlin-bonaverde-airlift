@@ -53,3 +53,18 @@ it('says who the app is for, what it is, and offers help', async () => {
   expect(screen.getByText(/Already have a Bonaverde Berlin coffee machine/)).toBeTruthy();
   expect(screen.getByLabelText('Help')).toBeTruthy();
 });
+
+it('still shows every control on a short phone', async () => {
+  const RN = require('react-native');
+  const spy = jest.spyOn(RN, 'useWindowDimensions').mockReturnValue({ width: 375, height: 667, scale: 2, fontScale: 1 });
+  try {
+    await setup();
+    expect(await screen.findByText('Write a card')).toBeTruthy();
+    expect(screen.getByText('Change')).toBeTruthy();
+    expect(screen.getByText("What's on this card?")).toBeTruthy();
+    expect(screen.getByText('Help')).toBeTruthy();
+    expect(screen.getByText('More')).toBeTruthy();
+  } finally {
+    spy.mockRestore();
+  }
+});

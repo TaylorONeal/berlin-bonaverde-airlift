@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { CardInfo, COMMAND_LABEL, pauseLabel } from '../protocol';
 import { CARD_ERROR_TEXT, CardError } from '../nfc';
 import { PressScale } from '../ui/Pressable';
@@ -66,5 +66,5 @@ const styles = StyleSheet.create({
   quiet: { minHeight: 44, justifyContent: 'center' },
   quietText: { color: color.bark, fontSize: 15, fontWeight: '600' },
   details: { gap: 2 },
-  mono: { fontFamily: 'Courier', fontSize: 13, color: color.bark },
+  mono: { fontFamily: Platform.select({ ios: 'Courier', default: 'monospace' }), fontSize: 13, color: color.bark },
 });

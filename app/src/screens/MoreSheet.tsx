@@ -46,7 +46,7 @@ export function MoreSheet({ visible, prefs, history, onChange, onCare, onHelp, o
         ) : (
           history.slice(0, 10).map((h, i) => (
             <View key={i} style={styles.histRow}>
-              <Text style={type.body}>{h.title}</Text>
+              <Text style={[type.body, { flexShrink: 1 }]} numberOfLines={2}>{h.title}</Text>
               <Text style={type.caption}>{new Date(h.at).toLocaleDateString()}</Text>
             </View>
           ))
@@ -117,5 +117,5 @@ const styles = StyleSheet.create({
   link: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.m },
   linkText: { fontSize: 17, fontWeight: '700', color: color.verde, flexShrink: 1 },
   linkArrow: { fontSize: 26, fontWeight: '700', color: color.verde },
-  histRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  histRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.s },
 });

@@ -32,9 +32,9 @@ export default function Slider({ value, max, onChange, accessibilityLabel, acces
       onAccessibilityAction={(e) => onChange(Math.max(0, Math.min(max, value + (e.nativeEvent.actionName === 'increment' ? 10 : -10))))}
     >
       <View style={styles.track} pointerEvents="none">
-        <View style={[styles.fill, { width: pct * w }]} />
+        <View style={[styles.fill, { width: 16 + pct * Math.max(0, w - 32) }]} />
       </View>
-      <View style={[styles.knob, { left: pct * w - 16 }]} pointerEvents="none" />
+      <View style={[styles.knob, { left: pct * Math.max(0, w - 32) }]} pointerEvents="none" />
     </View>
   );
 }

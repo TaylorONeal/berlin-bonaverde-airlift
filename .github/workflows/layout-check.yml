@@ -1,0 +1,140 @@
+# Builds the demo app and takes a picture of every screen on small and large
+# Android phones and iPhones, with normal and large text. Run it by hand from the
+# Actions tab, or push to a branch named layout/*. The pictures land on the
+# layout-shots branch and as a downloadable artifact. Free on a public repo.
+name: Layout check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['layout/**', 'fix/layout-*']
+
+concurrency:
+  group: layout-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  EXPO_PUBLIC_DEMO: '1'
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: app/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm ci
+      - run: npx expo prebuild --platform android --clean --no-install
+      - name: Build an emulator APK (release JS bundle, debug signing)
+        working-directory: app/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --no-daemon
+      - uses: actions/upload-artifact@v4
+        with: { name: apk, path: app/android/app/build/outputs/apk/release/app-release.apk }
+
+  android-shots:
+    needs: android-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: android-small, profile: 'Nexus 5', font: '1.0' }
+          - { name: android-small-bigtext, profile: 'Nexus 5', font: '1.3' }
+          - { name: android-large, profile: 'pixel_7_pro', font: '1.0' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: apk, path: apk }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Install Maestro
+        run: curl -fsSL https://get.maestro.mobile.dev | bash && echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb install -r apk/app-release.apk
+            adb shell settings put system font_scale ${{ matrix.font }}
+            adb shell wm size; adb shell wm density
+            mkdir -p shots/${{ matrix.name }}
+            maestro test tools/layout-check/flow.yaml -e OUT=shots/${{ matrix.name }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: shots-${{ matrix.name }}, path: shots, if-no-files-found: warn }
+
+  ios-shots:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: app/package-lock.json }
+      - name: Use the newest Xcode on the runner
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1); echo "$X"; sudo xcode-select -s "$X"; xcodebuild -version
+      - run: npm ci
+        working-directory: app
+      - run: npx expo prebuild --platform ios --clean
+        working-directory: app
+      - name: Build for the simulator
+        working-directory: app/ios
+        run: |
+          WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet
+          find build/Build/Products -maxdepth 2 -name '*.app' | head -1 > ../../app_path.txt; cat ../../app_path.txt
+      - name: Install Maestro
+        run: curl -fsSL https://get.maestro.mobile.dev | bash && echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Shoot each iPhone
+        run: |
+          APP="app/ios/$(cat app_path.txt)"
+          pick() { xcrun simctl list devices available -j | python3 -c "import json,sys;d=[x for r in json.load(sys.stdin)['devices'].values() for x in r if '$1' in x['name']];print(d[-1]['udid'] if d else '')"; }
+          run() { # name, device match, text size
+            U=$(pick "$2"); [ -z "$U" ] && { echo "no $2 simulator"; xcrun simctl list devices available; return 1; }
+            xcrun simctl boot "$U" || true; xcrun simctl bootstatus "$U" -b
+            xcrun simctl ui "$U" content_size "$3"
+            xcrun simctl install "$U" "$APP"
+            mkdir -p "shots/$1"
+            maestro --device "$U" test tools/layout-check/flow.yaml -e OUT="shots/$1" || echo "FLOW FAILED on $1" >> shots/failures.txt
+            xcrun simctl shutdown "$U"
+          }
+          mkdir -p shots
+          run ios-small "iPhone SE" medium
+          run ios-small-bigtext "iPhone SE" extra-extra-large
+          run ios-large "Pro Max" medium
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: shots-ios, path: shots, if-no-files-found: warn }
+
+  publish:
+    needs: [android-shots, ios-shots]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { pattern: shots-*, path: all, merge-multiple: true }
+      - name: Put the pictures on the layout-shots branch
+        run: |
+          cd all && ls -R | head -80
+          git init -q && git checkout -q -b layout-shots
+          git config user.name "layout-check" && git config user.email "actions@users.noreply.github.com"
+          echo "${{ github.sha }} ${{ github.ref_name }}" > SOURCE.txt
+          git add -A && git commit -qm "Layout pictures for ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" layout-shots
