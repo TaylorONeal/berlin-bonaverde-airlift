@@ -72,9 +72,16 @@ jobs:
           script: |
             adb install -r apk/app-release.apk
             adb shell settings put system font_scale ${{ matrix.font }}
+            adb shell settings put global hide_error_dialogs 1
             adb shell wm size; adb shell wm density
             mkdir -p shots/${{ matrix.name }}
-            maestro test -e OUT=shots/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. shots/${{ matrix.name }}-debug/ || true; exit 1; }
+            maestro test -e OUT=$GITHUB_WORKSPACE/shots/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. shots/${{ matrix.name }}-debug/ || true; exit 1; }
+      - if: always()
+        name: Gather any pictures Maestro saved elsewhere
+        run: |
+          mkdir -p shots/${{ matrix.name }}
+          find . "$HOME/.maestro" -name '*.png' -not -path './shots/*' -newer apk/app-release.apk -exec cp {} shots/${{ matrix.name }}/ \; 2>/dev/null || true
+          find shots -type f | sort
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -115,7 +122,7 @@ jobs:
             xcrun simctl ui "$U" content_size "$3"
             xcrun simctl install "$U" "$APP"
             mkdir -p "shots/$1"
-            if ! maestro --device "$U" test -e OUT="shots/$1" tools/layout-check/flow.yaml; then
+            if ! maestro --device "$U" test -e OUT="$GITHUB_WORKSPACE/shots/$1" tools/layout-check/flow.yaml; then
               echo "FLOW FAILED on $1" >> shots/failures.txt
               mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. "shots/$1-debug/" || true
               xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true

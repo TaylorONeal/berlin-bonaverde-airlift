@@ -5,6 +5,10 @@ appId: com.berlinairlift.app
 ---
 - launchApp:
     clearState: true
+# A busy emulator can show a system "isn't responding" box over the app.
+- tapOn:
+    text: "Wait"
+    optional: true
 - extendedWaitUntil:
     visible: "Write a card.*"
     timeout: 60000
