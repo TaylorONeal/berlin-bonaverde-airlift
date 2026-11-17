@@ -83,7 +83,7 @@ jobs:
           if-no-files-found: warn
 
   ios-shots:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -101,7 +101,7 @@ jobs:
         run: |
           WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
           xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO ARCHS=arm64 -quiet
           find build/Build/Products -maxdepth 2 -name '*.app' | head -1 > ../../app_path.txt; cat ../../app_path.txt
       - name: Install Maestro
         run: curl -fsSL https://get.maestro.mobile.dev | bash && echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
