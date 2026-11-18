@@ -60,7 +60,7 @@ workflows:
       app_store_connect: app-store-connect
     environment:
       node: 22
-      xcode: latest
+      xcode: "26.6" # ExpoModulesJSI needs Xcode 26.4 or newer; pinned so a new major never surprises the build
       cocoapods: default
       ios_signing:
         distribution_type: app_store
