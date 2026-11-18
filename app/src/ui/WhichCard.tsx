@@ -1,13 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { CARD_TO_BUY } from '../content/help';
-import { color, radius, space } from './tokens';
+import { color, MAX_SCALE, radius, space } from './tokens';
 
 /** The card's antenna coil, drawn small on the right of the card. */
-function Coil() {
+function Coil({ size }: { size: number }) {
   return (
-    <Svg width={84} height={84} viewBox="0 0 84 84" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <Svg width={size} height={size} viewBox="0 0 84 84" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {[0, 1, 2, 3].map((i) => (
         <Rect key={i} x={4 + i * 9} y={4 + i * 9} width={76 - i * 18} height={76 - i * 18} rx={12} fill="none" stroke={color.oak} strokeWidth={3} />
       ))}
@@ -24,16 +24,19 @@ const ROWS: { ok: boolean; label: string }[] = [
 
 /** The card to buy, drawn as a card, with a quick yes and no list under it. */
 export function WhichCard() {
+  // On a small phone the coil shrinks and the name scales down, so no word ever breaks in half.
+  const { width } = useWindowDimensions();
+  const coil = width < 380 ? 56 : 84;
   return (
     <View style={styles.wrap}>
       <View style={styles.card} accessible accessibilityLabel={`The card to buy: ${CARD_TO_BUY.name}, chip ${CARD_TO_BUY.part}, 13.56 megahertz.`}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={styles.label}>The one to buy</Text>
-          <Text style={styles.big}>MIFARE</Text>
-          <Text style={styles.mid}>Ultralight EV1</Text>
-          <Text style={styles.small}>{CARD_TO_BUY.part} · 13.56 MHz</Text>
+        <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+          <Text style={styles.label} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={MAX_SCALE.control}>The one to buy</Text>
+          <Text style={styles.big} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} maxFontSizeMultiplier={MAX_SCALE.display}>MIFARE</Text>
+          <Text style={styles.mid} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} maxFontSizeMultiplier={MAX_SCALE.display}>Ultralight EV1</Text>
+          <Text style={styles.small} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={MAX_SCALE.control}>{CARD_TO_BUY.part} · 13.56 MHz</Text>
         </View>
-        <Coil />
+        <Coil size={coil} />
       </View>
       <View style={styles.rows}>
         {ROWS.map((r) => (
