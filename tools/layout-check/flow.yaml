@@ -40,6 +40,9 @@ appId: com.berlinairlift.app
 - tapOn: "Done"
 - waitForAnimationToEnd
 - tapOn: "Help"
+- extendedWaitUntil:
+    visible: ".*card to buy.*"
+    timeout: 15000
 - waitForAnimationToEnd
 - takeScreenshot: 06-help
 - scroll
@@ -47,6 +50,9 @@ appId: com.berlinairlift.app
 - tapOn: "Done"
 - waitForAnimationToEnd
 - tapOn: "More"
+- extendedWaitUntil:
+    visible: "(?i)care cards"
+    timeout: 15000
 - waitForAnimationToEnd
 - takeScreenshot: 08-more
 - scroll
