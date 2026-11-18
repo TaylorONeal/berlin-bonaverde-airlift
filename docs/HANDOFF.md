@@ -31,6 +31,7 @@ Berlin Airlift is a free, open-source app (Apache 2.0) for owners of the Bonaver
 3. **iOS release.** Run `ios-release` (okay the cost first), then prepare the App Store version. "Submit for Review" is the maintainer's own click.
 4. **Portrait feature flag.** Play warns that the app requires `android.hardware.screen.portrait`. Mark it optional in the Android manifest so more devices can install.
 5. **First-user friction hunt.** Not run yet for this app.
+6. **Move the iOS build to Xcode 27 before April 2027.** App Store Connect accepted build 1 with warning ITMS-90725: it was built with the iOS 26.5 SDK, and from April 2027 uploads must use the iOS 27 SDK (Xcode 27 or later). The pin is `environment.xcode` in `codemagic.yaml`. Do this after 1.0 is through App Review, and check first that the Expo version builds on Xcode 27.
 
 ## Lessons
 
