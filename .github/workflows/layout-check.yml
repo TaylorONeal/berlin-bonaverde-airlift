@@ -145,7 +145,12 @@ jobs:
               || echo "could not create an iPhone SE simulator" >> shots/failures.txt
           fi
           # Warm the new iPhone SE once; a cold first boot is what trips Maestro's driver.
-          SE=$(pick "iPhone SE"); [ -n "$SE" ] && { xcrun simctl boot "$SE" || true; xcrun simctl bootstatus "$SE" -b; sleep 45; xcrun simctl shutdown "$SE"; }
+          # The first Maestro call in a job often fails to start its iOS driver, so spend that call on a throwaway walk.
+          SE=$(pick "iPhone SE"); [ -n "$SE" ] && {
+            xcrun simctl boot "$SE" || true; xcrun simctl bootstatus "$SE" -b; xcrun simctl install "$SE" "$APP"
+            printf 'appId: com.berlinairlift.app\n---\n- launchApp\n- waitForAnimationToEnd\n' > /tmp/warm.yaml
+            maestro --device "$SE" test /tmp/warm.yaml || maestro --device "$SE" test /tmp/warm.yaml || true
+            rm -rf "$HOME"/.maestro/tests/*; xcrun simctl shutdown "$SE"; }
           run ios-small "iPhone SE" medium
           run ios-small-bigtext "iPhone SE" extra-extra-large
           run ios-large "Pro Max" medium
