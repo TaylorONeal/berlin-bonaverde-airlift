@@ -123,7 +123,9 @@ jobs:
             xcrun simctl ui "$U" content_size "$3"
             xcrun simctl install "$U" "$APP"
             mkdir -p "shots/$1"
-            if ! maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; then
+            # Maestro's iOS driver sometimes fails to start on the first try, so give each walk one retry.
+            if ! maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml \
+              && ! { echo "retrying $1"; rm -rf mout; maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; }; then
               echo "FLOW FAILED on $1" >> shots/failures.txt
               mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. mout/. "shots/$1-debug/" 2>/dev/null || true
               xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true
