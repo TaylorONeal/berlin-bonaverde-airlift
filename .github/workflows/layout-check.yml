@@ -125,7 +125,7 @@ jobs:
             mkdir -p "shots/$1"
             # Maestro's iOS driver sometimes fails to start on the first try, so give each walk one retry.
             if ! maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml \
-              && ! { echo "retrying $1"; rm -rf mout; maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; }; then
+              && ! { echo "retrying $1 after a simulator restart"; rm -rf mout; xcrun simctl shutdown "$U"; xcrun simctl boot "$U"; xcrun simctl bootstatus "$U" -b; sleep 30; maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; }; then
               echo "FLOW FAILED on $1" >> shots/failures.txt
               mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. mout/. "shots/$1-debug/" 2>/dev/null || true
               xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true
@@ -144,6 +144,8 @@ jobs:
             xcrun simctl create "iPhone SE (3rd generation)" com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation "$RT" \
               || echo "could not create an iPhone SE simulator" >> shots/failures.txt
           fi
+          # Warm the new iPhone SE once; a cold first boot is what trips Maestro's driver.
+          SE=$(pick "iPhone SE"); [ -n "$SE" ] && { xcrun simctl boot "$SE" || true; xcrun simctl bootstatus "$SE" -b; sleep 45; xcrun simctl shutdown "$SE"; }
           run ios-small "iPhone SE" medium
           run ios-small-bigtext "iPhone SE" extra-extra-large
           run ios-large "Pro Max" medium
