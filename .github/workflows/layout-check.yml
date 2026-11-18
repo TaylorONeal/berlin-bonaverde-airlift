@@ -75,12 +75,13 @@ jobs:
             adb shell settings put global hide_error_dialogs 1
             adb shell wm size; adb shell wm density
             mkdir -p shots/${{ matrix.name }}
-            maestro test -e OUT=$GITHUB_WORKSPACE/shots/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. shots/${{ matrix.name }}-debug/ || true; exit 1; }
+            maestro test --test-output-dir=$GITHUB_WORKSPACE/mout/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. shots/${{ matrix.name }}-debug/ || true; exit 1; }
       - if: always()
         name: Gather any pictures Maestro saved elsewhere
         run: |
           mkdir -p shots/${{ matrix.name }}
-          find . "$HOME/.maestro" -name '*.png' -not -path './shots/*' -newer apk/app-release.apk -exec cp {} shots/${{ matrix.name }}/ \; 2>/dev/null || true
+          # The flow names its pictures 01-home.png and so on; Maestro keeps them in its own output folder.
+          find . "$HOME/.maestro" -name '[0-9][0-9]-*.png' -not -path './shots/*' -exec cp {} shots/${{ matrix.name }}/ \; 2>/dev/null || true
           find shots -type f | sort
       - if: always()
         uses: actions/upload-artifact@v4
@@ -122,7 +123,7 @@ jobs:
             xcrun simctl ui "$U" content_size "$3"
             xcrun simctl install "$U" "$APP"
             mkdir -p "shots/$1"
-            if ! maestro --device "$U" test -e OUT="$GITHUB_WORKSPACE/shots/$1" tools/layout-check/flow.yaml; then
+            if ! maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; then
               echo "FLOW FAILED on $1" >> shots/failures.txt
               mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. "shots/$1-debug/" || true
               xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true
@@ -130,6 +131,8 @@ jobs:
               ls ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i berlin && cp ~/Library/Logs/DiagnosticReports/*Berlin* "shots/$1-debug/" 2>/dev/null || true
               rm -rf ~/.maestro/tests/*
             fi
+            find . "$HOME/.maestro" -name '[0-9][0-9]-*.png' -not -path './shots/*' -exec cp {} "shots/$1/" \; 2>/dev/null || true
+            rm -rf mout "$HOME"/.maestro/tests/*
             xcrun simctl shutdown "$U"
           }
           mkdir -p shots

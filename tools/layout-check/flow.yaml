@@ -12,22 +12,22 @@ appId: com.berlinairlift.app
 - extendedWaitUntil:
     visible: "Write a card.*"
     timeout: 60000
-- takeScreenshot: ${OUT}/01-home
+- takeScreenshot: 01-home
 - tapOn: "Write a card.*"
 - extendedWaitUntil:
     visible: ".*card ready.*"
     timeout: 20000
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/02-done
+- takeScreenshot: 02-done
 - tapOn: "Write another.*"
 - tapOn: ".*Change"
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/03-drink
+- takeScreenshot: 03-drink
 - scrollUntilVisible:
     element: "Brew after roasting"
     direction: DOWN
     optional: true
-- takeScreenshot: ${OUT}/04-drink-slider
+- takeScreenshot: 04-drink-slider
 - tapOn: "Done"
 - waitForAnimationToEnd
 - tapOn: "What's on this card\\?"
@@ -36,20 +36,20 @@ appId: com.berlinairlift.app
     timeout: 20000
     optional: true
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/05-read
+- takeScreenshot: 05-read
 - tapOn: "Done"
 - waitForAnimationToEnd
 - tapOn: "Help"
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/06-help
+- takeScreenshot: 06-help
 - scroll
-- takeScreenshot: ${OUT}/07-help-lower
+- takeScreenshot: 07-help-lower
 - tapOn: "Done"
 - waitForAnimationToEnd
 - tapOn: "More"
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/08-more
+- takeScreenshot: 08-more
 - scroll
-- takeScreenshot: ${OUT}/09-more-lower
+- takeScreenshot: 09-more-lower
 - scroll
-- takeScreenshot: ${OUT}/10-more-end
+- takeScreenshot: 10-more-end
