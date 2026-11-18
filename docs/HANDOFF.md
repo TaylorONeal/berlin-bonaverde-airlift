@@ -1,6 +1,6 @@
 # Handoff: Berlin Airlift store launch
 
-Written Nov 12, 2026, so a fresh session can pick this up from this file alone.
+Written Nov 12, 2026 and updated Nov 18, 2026, so a fresh session can pick this up from this file alone.
 Private details (account names, ids, console pages) are in private notes kept outside the repo. Ask the maintainer for them before any store or CI step.
 
 ## What this is
@@ -17,15 +17,25 @@ Berlin Airlift is a free, open-source app (Apache 2.0) for owners of the Bonaver
 - Apple: bundle id registered with NFC Tag Reading. App Store Connect record "Berlin Airlift for Bonaverde", version 1.0 in Prepare for Submission. Its id is set in `codemagic.yaml`.
 - Google Play: app created. Store listing (text, icon, feature graphic, 8 screenshots) saved. App content all done: privacy policy, no ads, no sign-in, 18+, Data safety (no data), content rating (rated 3+), Advertising ID No, Government No, Financial and Health No, trader status set. Category Food & Drink. The dashboard setup checklist is complete.
 
+## Status on Nov 18, 2026
+
+- Google Play: version 1.0.0 is published to production in all countries (first public build, version code 2). An update with the layout fixes (version code 4) was sent for review on Nov 18. Managed publishing is on, so an approved update waits for the maintainer's publish.
+- Play publishing access and the Codemagic `google_play` secret are in place. `android-release` has run several times and uploads to the internal track.
+- Internal testing is active with one tester list. The store build installs from Play and opens on a real Android phone; all sheets open and close.
+- App Store: version 1.0 is still in Prepare for Submission.
+
 ## Open
 
-1. **Play service account access (maintainer).** Give the existing Play publishing service account these app permissions for Berlin Airlift: Edit and delete draft apps, Release apps to testing tracks, Manage testing tracks and edit tester lists, Manage store presence. No production or financial permissions. An agent's attempt was blocked by a safety check, so a person has to tick these.
-2. **Codemagic secret (maintainer).** In the Codemagic app for this repo, under Environment variables, add `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` (Secret, group `google_play`) holding that service account's JSON key. The group already exists and the value is empty.
-3. **First Android build.** Run `android-release` once the two steps above are done. The maintainer must okay the cost first. Linux X2 costs $0.045 a minute (codemagic.io/pricing, Nov 12, 2026) and the build is capped at 45 minutes, so it costs about $1 and at most about $2. It uploads a draft release to the internal track.
-4. **First iOS build.** Run `ios-release` (Mac mini M2, 60 minute cap, usually covered by the account's free macOS minutes). Okay the cost first. This also puts the new icon on App Store Connect.
-5. **Real device test.** Write and read a blank MIFARE Ultralight EV1 card on a real phone and brew with it. The app can't yet tell a blank NTAG from a blank EV1, so a chip check via GET_VERSION waits until the bytes are confirmed on a device.
-6. **Real screenshots and review video.** The current frames come from the web preview. Replace them with real device captures, and record an App Review video of a card write.
-7. **Submit for review.** Play "Send for review" and App Store "Submit for Review" are the maintainer's own clicks, never an agent's.
+1. **Real device card test.** Write and read a blank MIFARE Ultralight EV1 card on a real phone with a store build, and brew with it. This has not been done yet. The app can't yet tell a blank NTAG from a blank EV1, so a chip check via GET_VERSION waits until the bytes are confirmed on a device.
+2. **Real screenshots and review video.** The store frames still come from the web preview. Replace them with real device captures (the write, done and read frames need a real card), and record an App Review video of a card write.
+3. **iOS release.** Run `ios-release` (okay the cost first), then prepare the App Store version. "Submit for Review" is the maintainer's own click.
+4. **Portrait feature flag.** Play warns that the app requires `android.hardware.screen.portrait`. Mark it optional in the Android manifest so more devices can install.
+5. **First-user friction hunt.** Not run yet for this app.
+
+## Lessons
+
+- An `android-release` upload through the Play API also sends any changes waiting in Publishing overview for review. Check that nothing is pending there before starting a build, or expect them to be submitted.
+- A blank release-notes placeholder is fine for internal testing, but production needs real notes per language.
 
 ## Decisions made
 
@@ -41,6 +51,6 @@ Berlin Airlift is a free, open-source app (Apache 2.0) for owners of the Bonaver
 
 ## Next 3 steps
 
-1. Confirm with the maintainer that Open items 1 and 2 are done (Play access ticked and saved, Codemagic secret added).
-2. State the Android build cost, get a yes, start `android-release`, and watch it through. On failure, read the build log and fix only what blocks the build.
-3. Check the internal-track draft in Play Console and tell the maintainer it's ready for Send for review. Then do the same for `ios-release` and App Store Connect.
+1. With a blank MIFARE Ultralight EV1 card and an Android phone on the internal track, write and read a card, capture the eight store screens, and record the write for App Review.
+2. Rebuild the store frames from those captures (`tools/store-screenshots`) and replace the Play and App Store screenshots.
+3. Publish the approved Android update, then take iOS through `ios-release` to a ready-to-submit version.
