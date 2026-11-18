@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Easing, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Svg, { Path } from 'react-native-svg';
@@ -10,7 +10,7 @@ import { Airdrop } from '../ui/Airdrop';
 import { Grain } from '../ui/Grain';
 import { HoldButton } from '../ui/HoldButton';
 import { PressScale } from '../ui/Pressable';
-import { color, radius, shadow, space, touch, type } from '../ui/tokens';
+import { color, COMPACT_HEIGHT, MAX_SCALE, radius, shadow, space, touch, type } from '../ui/tokens';
 import { summaryLine, templateFor } from './cardFor';
 import { OWNER_BADGE, WHAT_IT_IS } from '../content/help';
 import { DrinkSheet } from './DrinkSheet';
@@ -37,11 +37,12 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
   addHistory: (e: HistoryEntry) => void;
 }) {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [sheet, setSheet] = useState<null | 'drink' | 'read' | 'more' | 'help'>(null);
   const [readState, setReadState] = useState<ReadState>({ kind: 'idle' });
   const [middleH, setMiddleH] = useState(0);
+  const [doneTextH, setDoneTextH] = useState(0);
   const [overwrite, setOverwrite] = useState<null | { image: Uint8Array; title: string; itemId: string }>(null);
   const pulse = useRef(new Animated.Value(0)).current;
   const shake = useRef(new Animated.Value(0)).current;
@@ -128,44 +129,55 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
   const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.03] });
   const shakeX = shake.interpolate({ inputRange: [-1, 1], outputRange: [-8, 8] });
 
+  // Short phones (iPhone SE, small Androids) get tighter spacing and smaller display
+  // words, so nothing in the middle is cut off. Taller phones keep the full layout.
+  const compact = height < COMPACT_HEIGHT;
+  const pad = compact ? { top: space.s, bottom: space.l } : { top: space.l, bottom: space.xxl };
   const buttonLabel = busy ? 'Hold a blank card to your phone' : phase.kind === 'done' ? 'Write another' : phase.kind === 'error' ? 'Try again' : 'Write a card';
-  // The plane gets whatever height is left after the words, and steps aside on short screens.
-  const planeH = Math.min(200, Math.max(0, middleH - DONE_TEXT_H));
+  // The plane gets whatever height is left after the words, measured, and steps aside on short screens.
+  const planeH = doneTextH > 0 ? Math.min(200, Math.max(0, middleH - pad.top - pad.bottom - doneTextH - space.s)) : 0;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
-      <View style={styles.shell}>
+      <View style={[styles.shell, compact && styles.shellCompact]}>
         <Grain />
-        <View style={styles.topRow}>
-          <View style={{ flexShrink: 1 }}>
-            <Text style={styles.brand} accessibilityRole="header">Berlin Airlift</Text>
-              </View>
-        </View>
-        <Text style={styles.subtitle}>Coffee Card Writer & Reader</Text>
-        <View style={styles.owner}><Text style={styles.ownerText}>{OWNER_BADGE}</Text></View>
+        <Text style={styles.brand} accessibilityRole="header" maxFontSizeMultiplier={MAX_SCALE.display}>Berlin Airlift</Text>
+        <Text style={styles.subtitle} maxFontSizeMultiplier={MAX_SCALE.control}>Coffee Card Writer & Reader</Text>
+        <View style={styles.owner}><Text style={styles.ownerText} maxFontSizeMultiplier={MAX_SCALE.control}>{OWNER_BADGE}</Text></View>
       </View>
 
       <View style={styles.middle} onLayout={(e) => setMiddleH(e.nativeEvent.layout.height)}>
-        {phase.kind === 'done' ? (
-          <View style={styles.done}>
-            {planeH >= 96 && <Airdrop width={width - space.l * 2} height={planeH} />}
-            <Check />
-            <Text style={styles.doneTitle}>{phase.title} card ready.</Text>
-            <Text style={[type.secondary, { textAlign: 'center' }]}>Put it in your machine and press its button.</Text>
-          </View>
-        ) : phase.kind === 'error' ? (
-          <Animated.View style={[styles.msg, { transform: [{ translateX: shakeX }] }]}>
-            <Text style={[type.body, { color: color.ember, textAlign: 'center' }]}>{CARD_ERROR_TEXT[phase.error.code]}</Text>
-          </Animated.View>
-        ) : (
-          <View style={styles.msg}>
-            <Text style={[type.hero, { textAlign: 'center' }]}>{busy ? 'Hold it still.' : 'Fresh coffee,\nairlifted.'}</Text>
-            {!busy && <Text style={styles.whatItIs}>{WHAT_IT_IS}</Text>}
-          </View>
-        )}
+        {/* Scrolls only when very large text would not fit; otherwise it sits still at the bottom. */}
+        <ScrollView
+          contentContainerStyle={[styles.middleContent, { paddingTop: pad.top, paddingBottom: pad.bottom }]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          {phase.kind === 'done' ? (
+            <View style={styles.done}>
+              {planeH >= 96 && <Airdrop width={width - space.l * 2} height={planeH} />}
+              <View style={styles.done} onLayout={(e) => setDoneTextH(e.nativeEvent.layout.height)}>
+                <Check />
+                <Text style={styles.doneTitle} maxFontSizeMultiplier={MAX_SCALE.display}>{phase.title} card ready.</Text>
+                <Text style={[type.secondary, { textAlign: 'center' }]} maxFontSizeMultiplier={MAX_SCALE.body}>Put it in your machine and press its button.</Text>
+              </View>
+            </View>
+          ) : phase.kind === 'error' ? (
+            <Animated.View style={[styles.msg, { transform: [{ translateX: shakeX }] }]}>
+              <Text style={[type.body, { color: color.ember, textAlign: 'center' }]} maxFontSizeMultiplier={MAX_SCALE.body}>{CARD_ERROR_TEXT[phase.error.code]}</Text>
+            </Animated.View>
+          ) : (
+            <View style={[styles.msg, compact && { gap: space.s }]}>
+              <Text style={[type.hero, compact && styles.heroCompact, { textAlign: 'center' }]} maxFontSizeMultiplier={MAX_SCALE.display}>
+                {busy ? 'Hold it still.' : 'Fresh coffee,\nairlifted.'}
+              </Text>
+              {!busy && <Text style={[styles.whatItIs, compact && styles.whatItIsCompact]} maxFontSizeMultiplier={MAX_SCALE.body}>{WHAT_IT_IS}</Text>}
+            </View>
+          )}
+        </ScrollView>
       </View>
 
-      <View style={[styles.bottom, { paddingBottom: insets.bottom + space.l }]}>
+      <View style={[styles.bottom, compact && styles.bottomCompact, { paddingBottom: insets.bottom + (compact ? space.m : space.l) }]}>
         {overwrite ? (
           <HoldButton label="Hold to replace this card" onConfirm={() => make(overwrite.image, overwrite.title, overwrite.itemId, true)} />
         ) : needsHold && !busy ? (
@@ -175,29 +187,29 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
             <PressScale
               onPress={() => (phase.kind === 'done' ? setPhase({ kind: 'idle' }) : make(image, item.title, item.id))}
               disabled={busy}
-              style={[styles.primary, busy && styles.primaryBusy]}
+              style={[styles.primary, compact && styles.primaryCompact, busy && styles.primaryBusy]}
               accessibilityRole="button"
               accessibilityLabel={`${buttonLabel}. ${line}`}
             >
-              <Text style={styles.primaryText}>{buttonLabel}</Text>
+              <Text style={styles.primaryText} maxFontSizeMultiplier={MAX_SCALE.control}>{buttonLabel}</Text>
             </PressScale>
           </Animated.View>
         )}
 
         <PressScale onPress={() => setSheet('drink')} disabled={busy} style={styles.summary} accessibilityRole="button" accessibilityHint="Change the drink on the card">
-          <Text style={styles.summaryText}>{line}</Text>
-          <Text style={styles.change}>Change</Text>
+          <Text style={styles.summaryText} numberOfLines={2} maxFontSizeMultiplier={MAX_SCALE.control}>{line}</Text>
+          <Text style={styles.change} maxFontSizeMultiplier={MAX_SCALE.control}>Change</Text>
         </PressScale>
 
         <View style={styles.quietRow}>
           <PressScale onPress={() => setSheet('read')} disabled={busy} style={styles.quiet} accessibilityRole="button">
-            <Text style={styles.quietText}>What's on this card?</Text>
+            <Text style={styles.quietText} maxFontSizeMultiplier={MAX_SCALE.control}>What's on this card?</Text>
           </PressScale>
           <PressScale onPress={() => setSheet('help')} disabled={busy} style={styles.quiet} accessibilityRole="button" accessibilityLabel="Help">
-            <Text style={styles.quietText}>Help</Text>
+            <Text style={styles.quietText} maxFontSizeMultiplier={MAX_SCALE.control}>Help</Text>
           </PressScale>
           <PressScale onPress={() => setSheet('more')} disabled={busy} style={styles.quiet} accessibilityRole="button" accessibilityLabel="More">
-            <Text style={styles.quietText}>More</Text>
+            <Text style={styles.quietText} maxFontSizeMultiplier={MAX_SCALE.control}>More</Text>
           </PressScale>
         </View>
       </View>
@@ -231,9 +243,6 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
   );
 }
 
-/** Check mark plus two lines of words under the plane, with room to breathe. */
-const DONE_TEXT_H = 56 + 32 + 2 * 36 + 21 * 2 + space.s * 3;
-
 function Check() {
   return (
     <Svg width={56} height={56} viewBox="0 0 72 72" accessibilityLabel="Done">
@@ -246,27 +255,29 @@ function Check() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.cream },
   shell: { backgroundColor: color.oak, marginHorizontal: space.m, marginTop: space.s, borderRadius: radius.card, overflow: 'hidden', padding: space.l, ...shadow },
-  topBtns: { flexDirection: 'row', gap: space.s },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.s },
+  shellCompact: { paddingVertical: space.m },
   brand: { ...type.title, fontSize: 28, lineHeight: 34, color: color.espresso },
-  moreBtn: { minHeight: 44, minWidth: 56, paddingHorizontal: space.m, borderRadius: radius.pill, backgroundColor: 'rgba(246,239,227,0.7)', alignItems: 'center', justifyContent: 'center' },
-  moreText: { fontSize: 15, fontWeight: '700', color: color.walnut },
   subtitle: { fontSize: 15, fontWeight: '700', color: color.walnut, marginTop: 2 },
   owner: { alignSelf: 'flex-start', marginTop: space.s, borderRadius: radius.pill, backgroundColor: color.espresso, paddingHorizontal: space.m, paddingVertical: 6 },
   ownerText: { fontSize: 14, fontWeight: '800', color: color.cream },
-  middle: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: space.l, paddingTop: space.l, paddingBottom: space.xxl, overflow: 'hidden' },
+  middle: { flex: 1, overflow: 'hidden' },
+  middleContent: { flexGrow: 1, justifyContent: 'flex-end', paddingHorizontal: space.l },
   msg: { alignItems: 'center', gap: space.m },
+  heroCompact: { fontSize: 32, lineHeight: 36 },
   whatItIs: { ...type.body, color: color.bark, textAlign: 'center', maxWidth: 340 },
+  whatItIsCompact: { fontSize: 15, lineHeight: 21 },
   done: { alignItems: 'center', gap: space.s },
   doneTitle: { ...type.title, fontSize: 28, lineHeight: 34, textAlign: 'center' },
   bottom: { paddingHorizontal: space.l, gap: space.m },
-  primary: { minHeight: touch.primary, borderRadius: radius.pill, backgroundColor: color.verde, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.l, ...shadow },
+  bottomCompact: { gap: space.s },
+  primary: { minHeight: touch.primary, borderRadius: radius.pill, backgroundColor: color.verde, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.l, paddingVertical: space.s, ...shadow },
+  primaryCompact: { minHeight: 76 },
   primaryBusy: { backgroundColor: color.verdeDeep },
   primaryText: { color: color.white, fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  summary: { minHeight: touch.min, borderRadius: radius.pill, backgroundColor: color.paper, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.l },
+  summary: { minHeight: touch.min, borderRadius: radius.pill, backgroundColor: color.paper, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.s, paddingHorizontal: space.l, paddingVertical: space.xs },
   summaryText: { fontSize: 17, fontWeight: '600', color: color.espresso, flexShrink: 1 },
-  change: { fontSize: 15, fontWeight: '700', color: color.verde },
-  quietRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: space.s },
+  change: { fontSize: 15, fontWeight: '700', color: color.verde, flexShrink: 0 },
+  quietRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', columnGap: space.s },
   quiet: { minHeight: 44, paddingHorizontal: space.s, justifyContent: 'center' },
   quietText: { fontSize: 15, fontWeight: '600', color: color.bark },
 });

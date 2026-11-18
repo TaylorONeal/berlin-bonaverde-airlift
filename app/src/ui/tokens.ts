@@ -34,6 +34,16 @@ export const type = {
 
 export const touch = { min: 56, primary: 96 } as const;
 
+/**
+ * Largest text-size multiplier each kind of text follows from the phone's
+ * accessibility setting. Body text grows the most; big display words and
+ * button labels grow less so the screen keeps its shape on small phones.
+ */
+export const MAX_SCALE = { display: 1.2, control: 1.3, body: 1.6 } as const;
+
+/** Phones shorter than this (in points) get the compact home layout. */
+export const COMPACT_HEIGHT = 740;
+
 export const shadow = {
   shadowColor: color.walnut,
   shadowOpacity: 0.18,

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { color, radius, touch } from './tokens';
+import { color, MAX_SCALE, radius, space, touch } from './tokens';
 
 /** Hold for about a second to confirm. Used for care cards, single-use cards and overwrites. */
 export function HoldButton({ label, onConfirm, tone = 'ember', holdMs = 1000 }: { label: string; onConfirm: () => void; tone?: 'ember' | 'verde'; holdMs?: number }) {
@@ -28,14 +28,14 @@ export function HoldButton({ label, onConfirm, tone = 'ember', holdMs = 1000 }: 
     <Pressable onPressIn={start} onPressOut={cancel} accessibilityRole="button" accessibilityLabel={label} accessibilityHint="Press and hold to confirm">
       <View style={[styles.base, { borderColor: bg }]}>
         <Animated.View style={[styles.fill, { backgroundColor: bg, width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
-        <Text style={[styles.label, { color: holding ? color.white : bg }]}>{holding ? 'Keep holding' : label}</Text>
+        <Text style={[styles.label, { color: holding ? color.white : bg }]} maxFontSizeMultiplier={MAX_SCALE.control}>{holding ? 'Keep holding' : label}</Text>
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { minHeight: touch.min + 8, borderRadius: radius.pill, borderWidth: 2, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
+  base: { minHeight: touch.min + 8, borderRadius: radius.pill, borderWidth: 2, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', paddingHorizontal: space.l, paddingVertical: space.xs },
   fill: { position: 'absolute', left: 0, top: 0, bottom: 0 },
-  label: { fontSize: 17, fontWeight: '700' },
+  label: { fontSize: 17, fontWeight: '700', textAlign: 'center' },
 });

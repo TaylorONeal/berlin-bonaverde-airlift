@@ -1,0 +1,61 @@
+# Walks every screen of the demo build and takes a picture of each.
+# Run by .github/workflows/layout-check.yml on Android emulators and iPhone simulators.
+# iOS reads a button's accessibility label (which adds the drink line), so labels match with ".*".
+appId: com.berlinairlift.app
+---
+- launchApp:
+    clearState: true
+# A busy emulator can show a system "isn't responding" box over the app.
+- tapOn:
+    text: "Wait"
+    optional: true
+- extendedWaitUntil:
+    visible: "Write a card.*"
+    timeout: 60000
+- takeScreenshot: 01-home
+- tapOn: "Write a card.*"
+- extendedWaitUntil:
+    visible: ".*card ready.*"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: 02-done
+- tapOn: "Write another.*"
+- tapOn: ".*Change"
+- waitForAnimationToEnd
+- takeScreenshot: 03-drink
+- scrollUntilVisible:
+    element: "Brew after roasting"
+    direction: DOWN
+    optional: true
+- takeScreenshot: 04-drink-slider
+- tapOn: "Done"
+- waitForAnimationToEnd
+- tapOn: "What's on this card\\?"
+- extendedWaitUntil:
+    visible: "Copy it to a blank card"
+    timeout: 20000
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: 05-read
+- tapOn: "Done"
+- waitForAnimationToEnd
+- tapOn: "Help"
+- extendedWaitUntil:
+    visible: ".*card to buy.*"
+    timeout: 15000
+- waitForAnimationToEnd
+- takeScreenshot: 06-help
+- scroll
+- takeScreenshot: 07-help-lower
+- tapOn: "Done"
+- waitForAnimationToEnd
+- tapOn: "More"
+- extendedWaitUntil:
+    visible: "(?i)care cards"
+    timeout: 15000
+- waitForAnimationToEnd
+- takeScreenshot: 08-more
+- scroll
+- takeScreenshot: 09-more-lower
+- scroll
+- takeScreenshot: 10-more-end

@@ -1,0 +1,175 @@
+# Builds the demo app and takes a picture of every screen on small and large
+# Android phones and iPhones, with normal and large text. Run it by hand from the
+# Actions tab, or push to a branch named layout/*. The pictures land on the
+# layout-shots branch and as a downloadable artifact. Free on a public repo.
+name: Layout check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['layout/**', 'fix/layout-*']
+
+concurrency:
+  group: layout-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  EXPO_PUBLIC_DEMO: '1'
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: app/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm ci
+      - run: npx expo prebuild --platform android --clean --no-install
+      - name: Build an emulator APK (release JS bundle, debug signing)
+        working-directory: app/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --no-daemon
+      - uses: actions/upload-artifact@v4
+        with: { name: apk, path: app/android/app/build/outputs/apk/release/app-release.apk }
+
+  android-shots:
+    needs: android-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: android-small, profile: 'Nexus 5', font: '1.0' }
+          - { name: android-small-bigtext, profile: 'Nexus 5', font: '1.3' }
+          - { name: android-large, profile: 'pixel_7_pro', font: '1.0' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: apk, path: apk }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Install Maestro
+        run: curl -fsSL https://get.maestro.mobile.dev | bash && echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb install -r apk/app-release.apk
+            adb shell settings put system font_scale ${{ matrix.font }}
+            adb shell settings put global hide_error_dialogs 1
+            adb shell wm size; adb shell wm density
+            mkdir -p shots/${{ matrix.name }}
+            maestro test --test-output-dir=$GITHUB_WORKSPACE/mout/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. mout/. shots/${{ matrix.name }}-debug/ 2>/dev/null || true; exit 1; }
+      - if: always()
+        name: Gather any pictures Maestro saved elsewhere
+        run: |
+          mkdir -p shots/${{ matrix.name }}
+          # The flow names its pictures 01-home.png and so on; Maestro keeps them in its own output folder.
+          find . "$HOME/.maestro" -name '[0-9][0-9]-*.png' -not -path './shots/*' -exec cp {} shots/${{ matrix.name }}/ \; 2>/dev/null || true
+          find shots -type f | sort
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shots-${{ matrix.name }}
+          path: shots
+          if-no-files-found: warn
+
+  ios-shots:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: app/package-lock.json }
+      - name: Use the newest Xcode on the runner
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1); echo "$X"; sudo xcode-select -s "$X"; xcodebuild -version
+      - run: npm ci
+        working-directory: app
+      - run: npx expo prebuild --platform ios --clean
+        working-directory: app
+      - name: Build for the simulator
+        working-directory: app/ios
+        run: |
+          WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO ARCHS=arm64 -quiet
+          find build/Build/Products -maxdepth 2 -name '*.app' | head -1 > ../../app_path.txt; cat ../../app_path.txt
+      - name: Install Maestro
+        run: curl -fsSL https://get.maestro.mobile.dev | bash && echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Shoot each iPhone
+        run: |
+          APP="app/ios/$(cat app_path.txt)"
+          pick() { xcrun simctl list devices available -j | python3 -c "import json,sys;d=[x for r in json.load(sys.stdin)['devices'].values() for x in r if '$1' in x['name']];print(d[-1]['udid'] if d else '')"; }
+          run() { # name, device match, text size
+            U=$(pick "$2"); [ -z "$U" ] && { echo "no $2 simulator" | tee -a shots/failures.txt; return 0; }
+            xcrun simctl boot "$U" || true; xcrun simctl bootstatus "$U" -b
+            xcrun simctl ui "$U" content_size "$3"
+            xcrun simctl install "$U" "$APP"
+            mkdir -p "shots/$1"
+            # Maestro's iOS driver sometimes fails to start on the first try, so give each walk one retry.
+            if ! maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml \
+              && ! { echo "retrying $1 after a simulator restart"; rm -rf mout; xcrun simctl shutdown "$U"; xcrun simctl boot "$U"; xcrun simctl bootstatus "$U" -b; sleep 30; maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; }; then
+              echo "FLOW FAILED on $1" >> shots/failures.txt
+              mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. mout/. "shots/$1-debug/" 2>/dev/null || true
+              xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true
+              xcrun simctl spawn "$U" log show --last 3m --style compact --predicate 'process CONTAINS "BerlinAirlift" OR messageType == fault' > "shots/$1-debug/sim.log" 2>&1 || true
+              ls ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i berlin && cp ~/Library/Logs/DiagnosticReports/*Berlin* "shots/$1-debug/" 2>/dev/null || true
+              rm -rf ~/.maestro/tests/*
+            fi
+            find . "$HOME/.maestro" -name '[0-9][0-9]-*.png' -not -path './shots/*' -exec cp {} "shots/$1/" \; 2>/dev/null || true
+            rm -rf mout "$HOME"/.maestro/tests/*
+            xcrun simctl shutdown "$U"
+          }
+          mkdir -p shots
+          # The runner image ships no small iPhone, so make an iPhone SE (375x667pt) if missing.
+          if [ -z "$(pick "iPhone SE")" ]; then
+            RT=$(xcrun simctl list runtimes -j | python3 -c "import json,sys;r=[x for x in json.load(sys.stdin)['runtimes'] if x['platform']=='iOS' and x['isAvailable']];print(r[-1]['identifier'])")
+            xcrun simctl create "iPhone SE (3rd generation)" com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation "$RT" \
+              || echo "could not create an iPhone SE simulator" >> shots/failures.txt
+          fi
+          # Warm the new iPhone SE once; a cold first boot is what trips Maestro's driver.
+          # The first Maestro call in a job often fails to start its iOS driver, so spend that call on a throwaway walk.
+          SE=$(pick "iPhone SE"); [ -n "$SE" ] && {
+            xcrun simctl boot "$SE" || true; xcrun simctl bootstatus "$SE" -b; xcrun simctl install "$SE" "$APP"
+            printf 'appId: com.berlinairlift.app\n---\n- launchApp\n- waitForAnimationToEnd\n' > /tmp/warm.yaml
+            maestro --device "$SE" test /tmp/warm.yaml || maestro --device "$SE" test /tmp/warm.yaml || true
+            rm -rf "$HOME"/.maestro/tests/*; xcrun simctl shutdown "$SE"; }
+          run ios-small "iPhone SE" medium
+          run ios-small-bigtext "iPhone SE" extra-extra-large
+          run ios-large "Pro Max" medium
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: shots-ios, path: shots, if-no-files-found: warn }
+
+  publish:
+    needs: [android-shots, ios-shots]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { pattern: shots-*, path: all, merge-multiple: true }
+      - name: Put the pictures on the layout-shots branch
+        run: |
+          cd all && ls -R | head -80
+          git init -q && git checkout -q -b layout-shots
+          git config user.name "layout-check" && git config user.email "actions@users.noreply.github.com"
+          echo "${{ github.sha }} ${{ github.ref_name }}" > SOURCE.txt
+          git add -A && git commit -qm "Layout pictures for ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" layout-shots
