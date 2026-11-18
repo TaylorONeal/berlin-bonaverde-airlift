@@ -75,7 +75,7 @@ jobs:
             adb shell settings put global hide_error_dialogs 1
             adb shell wm size; adb shell wm density
             mkdir -p shots/${{ matrix.name }}
-            maestro test --test-output-dir=$GITHUB_WORKSPACE/mout/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. shots/${{ matrix.name }}-debug/ || true; exit 1; }
+            maestro test --test-output-dir=$GITHUB_WORKSPACE/mout/${{ matrix.name }} tools/layout-check/flow.yaml || { mkdir -p shots/${{ matrix.name }}-debug; cp -R ~/.maestro/tests/. mout/. shots/${{ matrix.name }}-debug/ 2>/dev/null || true; exit 1; }
       - if: always()
         name: Gather any pictures Maestro saved elsewhere
         run: |
@@ -125,7 +125,7 @@ jobs:
             mkdir -p "shots/$1"
             if ! maestro --device "$U" test --test-output-dir="$GITHUB_WORKSPACE/mout/$1" tools/layout-check/flow.yaml; then
               echo "FLOW FAILED on $1" >> shots/failures.txt
-              mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. "shots/$1-debug/" || true
+              mkdir -p "shots/$1-debug"; cp -R ~/.maestro/tests/. mout/. "shots/$1-debug/" 2>/dev/null || true
               xcrun simctl io "$U" screenshot "shots/$1-debug/screen.png" || true
               xcrun simctl spawn "$U" log show --last 3m --style compact --predicate 'process CONTAINS "BerlinAirlift" OR messageType == fault' > "shots/$1-debug/sim.log" 2>&1 || true
               ls ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i berlin && cp ~/Library/Logs/DiagnosticReports/*Berlin* "shots/$1-debug/" 2>/dev/null || true
