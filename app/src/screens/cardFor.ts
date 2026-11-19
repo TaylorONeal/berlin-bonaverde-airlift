@@ -19,6 +19,12 @@ export function summaryLine(prefs: Prefs, item: MenuItem): string {
   return parts.join('. ') + '.';
 }
 
+/** The summary split for the home card panel: the drink name, then everything after it. */
+export function summaryParts(prefs: Prefs, item: MenuItem): { title: string; detail: string } {
+  const full = summaryLine(prefs, item);
+  return { title: item.title, detail: full.slice(item.title.length + 2) };
+}
+
 function pauseShort(m: number) {
   if (m < 60) return `${m} min`;
   const h = Math.floor(m / 60);

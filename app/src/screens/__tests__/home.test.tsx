@@ -28,7 +28,18 @@ async function setup(adapter = fakeAdapter()) {
 it('opens on one big button with the default already chosen', async () => {
   await setup();
   expect(await screen.findByText('Write a card')).toBeTruthy();
-  expect(screen.getByText('Full Pot. Reusable.')).toBeTruthy();
+  expect(screen.getByText('Full Pot')).toBeTruthy();
+  expect(screen.getByText('Reusable.')).toBeTruthy();
+  expect(screen.getByText(/One shot: roasts, grinds and brews a full pot/)).toBeTruthy();
+});
+
+it('puts the card choice above the write button', async () => {
+  await setup();
+  const choice = screen.getByLabelText('Your card: Full Pot. Reusable.');
+  expect(choice).toBeTruthy();
+  const order = JSON.stringify(screen.toJSON());
+  expect(order.indexOf('Your card')).toBeLessThan(order.indexOf('Write a card'));
+  expect(order.indexOf('Your card')).toBeLessThan(order.indexOf('Fresh coffee, airlifted.'));
 });
 
 it('makes a card in one tap and shows the success moment', async () => {
@@ -67,4 +78,10 @@ it('still shows every control on a short phone', async () => {
   } finally {
     spy.mockRestore();
   }
+});
+
+it('shows the holding pattern while it waits for a card', async () => {
+  const { HoldingPattern } = require('../../ui/HoldingPattern');
+  await render(<HoldingPattern size={200} />);
+  expect(screen.getByLabelText('Waiting for a card')).toBeTruthy();
 });
