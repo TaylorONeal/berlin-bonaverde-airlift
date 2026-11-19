@@ -15,9 +15,18 @@ export const THANKS: readonly { who: string; what: string }[] = [
   { who: 'VerdeNFC by Bernd Trappe', what: 'The card math and the drink recipes this app writes. Apache 2.0.' },
   { who: 'hackaverde by PostalBlab and friends', what: 'How the card is laid out, and the real cards we test against.' },
   { who: 'Craig Whyte, Michael Grundler and the owner groups', what: 'The know-how that made all of this possible.' },
+  { who: 'bonaverde-berlin.org, On The Roast Again', what: 'Owner guides, the grind time trick, the filter tip and the manuals. Worth a visit.' },
   { who: 'raspiverde by Marcus Wolschon', what: 'Taking the Berlin even further with a Raspberry Pi.' },
   { who: 'Bonaverde', what: 'For building a machine good enough that all of us bothered.' },
 ];
+
+/** The owner community's site. Linked, not copied: its files are for private use. */
+export const COMMUNITY_SITE = {
+  name: 'bonaverde-berlin.org',
+  manuals: 'https://bonaverde-berlin.org/manual.html',
+  repair: 'https://bonaverde-berlin.org/repair.html',
+  home: 'https://bonaverde-berlin.org/index.html',
+} as const;
 
 export const OPEN_SOURCE =
   'Free forever and open source under the Apache 2.0 license. Anyone can read the code, report a problem or help out.';
