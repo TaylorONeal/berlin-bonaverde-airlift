@@ -73,7 +73,22 @@ Any green coffee for the roast modes, roasted whole beans for Grind and Grind & 
 Roasting is a heat process with smoke and chaff: follow the Berlin's manual, keep the air filter and chaff collector sane, ventilate, and do not leave a roast unattended because an app made it feel easy. Every profile in this app is a published community profile; the app invents no new heat curves.
 
 **Where do I get the official manual?**
-A mirrored copy of the Berlin manual is linked in `docs/CREDITS.md`.
+In the app: More, Owner guides, Berlin manuals. It opens the owner site's page with both manual revisions.
+
+**My pot stops grinding with beans left over.**
+Pick a longer grind time when you choose the drink: 45 s for about 50 g of beans, 60 s for 70 g, 75 s for 90 g. Big Pot (90 g, 1 L) sets 75 s for you.
+
+**Where are The Wave and the other named roasts?**
+Under Special roasts when you choose a drink: The Wave, Postcard, Monpaka, Flash Pump and Ojo de Aqua.
+
+**What replaces the air filter?**
+Owners use a JUWEL bioCarb XL activated carbon sponge from an aquarium shop, cut in half. Change it about every 30 roasts (the yellow light), then write and scan a Reset Air Filter card.
+
+**How do I descale?**
+The manual's way: two Rinse runs with no coffee. First a full tank with 50 ml of white vinegar or descaler, then plain water. The Descale card is in More too.
+
+**Can I reuse old Bonaverde cards?**
+Unused ones from green bean pouches, yes. Used ones may be locked; use a new blank card if writing fails.
 
 ## For the technical
 

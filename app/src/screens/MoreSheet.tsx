@@ -1,6 +1,6 @@
 import React from 'react';
 import { Linking, StyleSheet, Switch, Text, View } from 'react-native';
-import { OPEN_SOURCE, REPO_URL, STORY, THANKS, TRADEMARK_NOTICE } from '../content/about';
+import { COMMUNITY_SITE, OPEN_SOURCE, REPO_URL, STORY, THANKS, TRADEMARK_NOTICE } from '../content/about';
 import { MENU } from '../protocol';
 import { HistoryEntry, Prefs } from '../state/store';
 import { HoldButton } from '../ui/HoldButton';
@@ -56,6 +56,13 @@ export function MoreSheet({ visible, prefs, history, onChange, onCare, onHelp, o
       <Text style={styles.label}>Help</Text>
       <View style={styles.block}>
         <LinkRow label="Which card to buy, and how it works" onPress={onHelp} />
+      </View>
+
+      <Text style={styles.label}>Owner guides</Text>
+      <View style={styles.block}>
+        <Text style={type.secondary}>From {COMMUNITY_SITE.name}, the owner community's site. Opens in your browser.</Text>
+        <LinkRow label="Berlin manuals" onPress={() => Linking.openURL(COMMUNITY_SITE.manuals)} />
+        <LinkRow label="Repair videos and photos" onPress={() => Linking.openURL(COMMUNITY_SITE.repair)} />
       </View>
 
       <Text style={styles.label}>About</Text>

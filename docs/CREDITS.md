@@ -14,6 +14,10 @@ Berlin Airlift is a remix, and it says so loudly. Every load-bearing piece of kn
 - VerdeNFC's own README credits: "the dedicated Facebook group and especially Hackaverde, Craig Whyte and Michael Grundler who delivered important information without [which] this app wouldn't be possible."
 - Licence: VerdeNFC is **Copyright 2020 Bernd Trappe, licensed under the Apache License, Version 2.0** (see its repo's LICENSE file). The ported portions of this project are used under those terms, are credited here and in the repo's `NOTICE` file, and keep his copyright. Thank you for licensing it openly, Bernd. It is a large part of why these machines are still making coffee. (Correction, 2026-10-22: an earlier version of this file wrongly said VerdeNFC's LICENSE file was empty. It is not; that was a read error on our side, fixed the same day.)
 
+### bonaverde-berlin.org, "On The Roast Again"
+- Site: https://bonaverde-berlin.org/
+- The owner community's guide site: the grind time bytes, the replacement air filter tip, mirrored Berlin manuals (Rev. 1 and Rev. 2), repair videos and photos. The app links to the manuals and repair pages and retells the tips in its own words. Nothing from the site is copied into this repo: its files are offered for private use.
+
 ### hackaverde, PostalBlab and contributors
 - Repo: https://github.com/PostalBlab/hackaverde
 - What it gave the community: the NFC tag byte layout (`NFC/Layout.md`), firmware reverse-engineering notes, the machine's memory layout, and a library of real card dumps (`NFC/tags`): air filter, brew only, grind only, roast only, universal roasts and more.

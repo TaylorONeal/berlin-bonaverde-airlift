@@ -27,7 +27,7 @@ Following hackaverde's `NFC/Layout.md` and VerdeNFC's decoder (`DataDetails2View
 
 - Bytes 16 to 35: four roast-phase records of 5 bytes each, with a skipped separator byte between records in the decoder's view (records start at 16, 21, 26, 31). The decoder interprets each as two temperatures, a max-power percentage, a power percentage, and (records 2 and 4) a duration in 5-second units. **Treat the temperature reading as approximate**: hackaverde's firmware notes describe these bytes as parameters to a roast-curve function rather than plain temperatures, and VerdeNFC itself labelled its interpretation "WiP".
 - Bytes 36 to 39: a fifth record. Byte 37 as a temperature, byte 38 as max-power %, and byte 39 as **grind seconds** when the command is Grind, Grind & Brew or Clean Grinder.
-- Byte 40: a value the firmware multiplies by 5 or 10 (hackaverde).
+- Byte 40: a value the firmware multiplies by 5 or 10 (hackaverde). Owners on bonaverde-berlin.org tested it as the **grind time the machine runs**: `0x23` = 45 s, `0x32` = 60 s, `0x40` = 75 s, with byte 39 set to the matching seconds (`0x2D`, `0x3C`, `0x4B`) so card apps show it. The app only writes those three tested pairs (`app/src/protocol/grind.ts`).
 - **Byte 41: the command.** See the table below.
 - Byte 42: a time/statistic value the decoder calls `Time_Stat_7`, in minutes.
 - Bytes 43 to 45: present in every profile; no confirmed meaning yet.

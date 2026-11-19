@@ -20,6 +20,22 @@ it('names the exact card to buy and the look-alikes to avoid', async () => {
   expect(screen.getByText(/MIFARE Classic 1K/)).toBeTruthy();
 });
 
+it('explains the lights, the filter, descaling and old cards', async () => {
+  await render(
+    <SafeAreaProvider initialMetrics={metrics}>
+      <HelpSheet visible onClose={() => {}} />
+    </SafeAreaProvider>,
+  );
+  await fireEvent.press(screen.getByText('What do the lights on my Berlin mean?'));
+  expect(screen.getByText(/Yellow: the air filter is due/)).toBeTruthy();
+  await fireEvent.press(screen.getByText('When do I change the air filter?'));
+  expect(screen.getByText(/JUWEL bioCarb XL/)).toBeTruthy();
+  await fireEvent.press(screen.getByText('How do I descale?'));
+  expect(screen.getByText(/50 ml of white vinegar/)).toBeTruthy();
+  await fireEvent.press(screen.getByText('Can I reuse old Bonaverde cards?'));
+  expect(screen.getByText(/unopened green bean pouches/)).toBeTruthy();
+});
+
 it('More carries the story, the thanks, the code link and the trademark notice', async () => {
   const { MoreSheet } = require('../MoreSheet');
   const onHelp = jest.fn();
@@ -32,6 +48,10 @@ it('More carries the story, the thanks, the code link and the trademark notice',
   expect(screen.getByText('VerdeNFC by Bernd Trappe')).toBeTruthy();
   expect(screen.getByText('See the code on GitHub')).toBeTruthy();
   expect(screen.getByText(/independent community project/)).toBeTruthy();
+  expect(screen.getByText('Berlin manuals')).toBeTruthy();
+  expect(screen.getByText('Repair videos and photos')).toBeTruthy();
+  expect(screen.getByText('bonaverde-berlin.org, On The Roast Again')).toBeTruthy();
+  expect(screen.getByText('Rinse card')).toBeTruthy();
   await fireEvent.press(screen.getByText('Which card to buy, and how it works'));
   expect(onHelp).toHaveBeenCalled();
 });
