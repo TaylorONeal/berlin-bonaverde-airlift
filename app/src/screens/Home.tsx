@@ -11,7 +11,7 @@ import { Grain } from '../ui/Grain';
 import { HoldButton } from '../ui/HoldButton';
 import { PressScale } from '../ui/Pressable';
 import { color, COMPACT_HEIGHT, MAX_SCALE, radius, shadow, space, touch, type } from '../ui/tokens';
-import { summaryLine, templateFor } from './cardFor';
+import { summaryLine, summaryParts, templateFor } from './cardFor';
 import { OWNER_BADGE, WHAT_IT_IS } from '../content/help';
 import { DrinkSheet } from './DrinkSheet';
 import { HelpSheet } from './HelpSheet';
@@ -49,6 +49,7 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
 
   const { item, image } = templateFor(prefs);
   const line = summaryLine(prefs, item);
+  const parts = summaryParts(prefs, item);
   const needsHold = !prefs.multiUse; // single-use cards get a real pause
 
   useEffect(() => {
@@ -146,6 +147,25 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
         <View style={styles.owner}><Text style={styles.ownerText} maxFontSizeMultiplier={MAX_SCALE.control}>{OWNER_BADGE}</Text></View>
       </View>
 
+      {/* The one real choice comes first: which card. Writing it is the big button below. */}
+      <PressScale
+        onPress={() => setSheet('drink')}
+        disabled={busy}
+        style={[styles.pick, compact && styles.pickCompact]}
+        accessibilityRole="button"
+        accessibilityLabel={`Your card: ${line}`}
+        accessibilityHint="Choose a different card"
+      >
+        <View style={styles.pickText}>
+          <Text style={styles.pickLabel} maxFontSizeMultiplier={MAX_SCALE.control}>Your card</Text>
+          <Text style={[styles.pickTitle, compact && styles.pickTitleCompact]} numberOfLines={1} maxFontSizeMultiplier={MAX_SCALE.display}>{parts.title}</Text>
+          <Text style={styles.pickDetail} numberOfLines={2} maxFontSizeMultiplier={MAX_SCALE.control}>{parts.detail}</Text>
+        </View>
+        <View style={styles.changePill}>
+          <Text style={styles.change} maxFontSizeMultiplier={MAX_SCALE.control}>Change</Text>
+        </View>
+      </PressScale>
+
       <View style={styles.middle} onLayout={(e) => setMiddleH(e.nativeEvent.layout.height)}>
         {/* Scrolls only when very large text would not fit; otherwise it sits still at the bottom. */}
         <ScrollView
@@ -167,12 +187,16 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
               <Text style={[type.body, { color: color.ember, textAlign: 'center' }]} maxFontSizeMultiplier={MAX_SCALE.body}>{CARD_ERROR_TEXT[phase.error.code]}</Text>
             </Animated.View>
           ) : (
-            <View style={[styles.msg, compact && { gap: space.s }]}>
-              <Text style={[type.hero, compact && styles.heroCompact, { textAlign: 'center' }]} maxFontSizeMultiplier={MAX_SCALE.display}>
-                {busy ? 'Hold it still.' : 'Fresh coffee,\nairlifted.'}
-              </Text>
-              {!busy && <Text style={[styles.whatItIs, compact && styles.whatItIsCompact]} maxFontSizeMultiplier={MAX_SCALE.body}>{WHAT_IT_IS}</Text>}
-            </View>
+            busy ? (
+              <View style={styles.msg}>
+                <Text style={[type.hero, compact && styles.heroCompact, { textAlign: 'center' }]} maxFontSizeMultiplier={MAX_SCALE.display}>Hold it still.</Text>
+              </View>
+            ) : (
+              <View style={styles.intro}>
+                <Text style={styles.introTitle} maxFontSizeMultiplier={MAX_SCALE.display}>Fresh coffee, airlifted.</Text>
+                <Text style={styles.whatItIs} maxFontSizeMultiplier={MAX_SCALE.body}>{WHAT_IT_IS}</Text>
+              </View>
+            )
           )}
         </ScrollView>
       </View>
@@ -195,11 +219,6 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
             </PressScale>
           </Animated.View>
         )}
-
-        <PressScale onPress={() => setSheet('drink')} disabled={busy} style={styles.summary} accessibilityRole="button" accessibilityHint="Change the drink on the card">
-          <Text style={styles.summaryText} numberOfLines={2} maxFontSizeMultiplier={MAX_SCALE.control}>{line}</Text>
-          <Text style={styles.change} maxFontSizeMultiplier={MAX_SCALE.control}>Change</Text>
-        </PressScale>
 
         <View style={styles.quietRow}>
           <PressScale onPress={() => setSheet('read')} disabled={busy} style={styles.quiet} accessibilityRole="button">
@@ -261,11 +280,20 @@ const styles = StyleSheet.create({
   owner: { alignSelf: 'flex-start', marginTop: space.s, borderRadius: radius.pill, backgroundColor: color.espresso, paddingHorizontal: space.m, paddingVertical: 6 },
   ownerText: { fontSize: 14, fontWeight: '800', color: color.cream },
   middle: { flex: 1, overflow: 'hidden' },
-  middleContent: { flexGrow: 1, justifyContent: 'flex-end', paddingHorizontal: space.l },
+  middleContent: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: space.l },
   msg: { alignItems: 'center', gap: space.m },
   heroCompact: { fontSize: 32, lineHeight: 36 },
-  whatItIs: { ...type.body, color: color.bark, textAlign: 'center', maxWidth: 340 },
-  whatItIsCompact: { fontSize: 15, lineHeight: 21 },
+  intro: { alignItems: 'center', gap: space.xs },
+  introTitle: { fontFamily: type.title.fontFamily, fontSize: 20, lineHeight: 24, color: color.espresso, textAlign: 'center' },
+  whatItIs: { ...type.caption, fontSize: 14, lineHeight: 19, textAlign: 'center', maxWidth: 320 },
+  pick: { marginHorizontal: space.m, marginTop: space.m, borderRadius: radius.card, backgroundColor: color.paper, borderWidth: 2, borderColor: color.verde, flexDirection: 'row', alignItems: 'center', gap: space.s, paddingHorizontal: space.l, paddingVertical: space.m },
+  pickCompact: { marginTop: space.s, paddingVertical: space.s },
+  pickText: { flex: 1, flexShrink: 1 },
+  pickLabel: { fontSize: 13, fontWeight: '800', color: color.verde, letterSpacing: 0.6, textTransform: 'uppercase' },
+  pickTitle: { fontFamily: type.title.fontFamily, fontSize: 28, lineHeight: 34, color: color.espresso, marginTop: 2 },
+  pickTitleCompact: { fontSize: 24, lineHeight: 28 },
+  pickDetail: { fontSize: 15, lineHeight: 20, fontWeight: '600', color: color.bark, marginTop: 2 },
+  changePill: { minHeight: 44, borderRadius: radius.pill, backgroundColor: color.verde, paddingHorizontal: space.m, justifyContent: 'center', flexShrink: 0 },
   done: { alignItems: 'center', gap: space.s },
   doneTitle: { ...type.title, fontSize: 28, lineHeight: 34, textAlign: 'center' },
   bottom: { paddingHorizontal: space.l, gap: space.m },
@@ -274,9 +302,7 @@ const styles = StyleSheet.create({
   primaryCompact: { minHeight: 76 },
   primaryBusy: { backgroundColor: color.verdeDeep },
   primaryText: { color: color.white, fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  summary: { minHeight: touch.min, borderRadius: radius.pill, backgroundColor: color.paper, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.s, paddingHorizontal: space.l, paddingVertical: space.xs },
-  summaryText: { fontSize: 17, fontWeight: '600', color: color.espresso, flexShrink: 1 },
-  change: { fontSize: 15, fontWeight: '700', color: color.verde, flexShrink: 0 },
+  change: { fontSize: 15, fontWeight: '800', color: color.white },
   quietRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', columnGap: space.s },
   quiet: { minHeight: 44, paddingHorizontal: space.s, justifyContent: 'center' },
   quietText: { fontSize: 15, fontWeight: '600', color: color.bark },

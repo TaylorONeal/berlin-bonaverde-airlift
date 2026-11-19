@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DEFAULT_PREFS } from '../../state/store';
 import { DrinkSheet } from '../DrinkSheet';
-import { summaryLine, templateFor } from '../cardFor';
+import { summaryLine, summaryParts, templateFor } from '../cardFor';
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, left: 0, right: 0, bottom: 34 } };
 
@@ -52,4 +52,9 @@ it('writes the chosen grind time into the card', () => {
   expect(summaryLine({ ...DEFAULT_PREFS, grindSeconds: 45 }, full.item)).toBe('Full Pot. Grinds 45 s. Reusable.');
   const wave = templateFor({ ...DEFAULT_PREFS, itemId: 'special-wave', grindSeconds: 75 });
   expect(wave.image[40]).toBe(0x23); // roast only: left as the card has it
+});
+
+it('splits the summary into the drink name and its details for the home panel', () => {
+  const full = templateFor({ ...DEFAULT_PREFS, grindSeconds: 45 });
+  expect(summaryParts({ ...DEFAULT_PREFS, grindSeconds: 45 }, full.item)).toEqual({ title: 'Full Pot', detail: 'Grinds 45 s. Reusable.' });
 });

@@ -28,7 +28,17 @@ async function setup(adapter = fakeAdapter()) {
 it('opens on one big button with the default already chosen', async () => {
   await setup();
   expect(await screen.findByText('Write a card')).toBeTruthy();
-  expect(screen.getByText('Full Pot. Reusable.')).toBeTruthy();
+  expect(screen.getByText('Full Pot')).toBeTruthy();
+  expect(screen.getByText('Reusable.')).toBeTruthy();
+});
+
+it('puts the card choice above the write button', async () => {
+  await setup();
+  const choice = screen.getByLabelText('Your card: Full Pot. Reusable.');
+  expect(choice).toBeTruthy();
+  const order = JSON.stringify(screen.toJSON());
+  expect(order.indexOf('Your card')).toBeLessThan(order.indexOf('Write a card'));
+  expect(order.indexOf('Your card')).toBeLessThan(order.indexOf('Fresh coffee, airlifted.'));
 });
 
 it('makes a card in one tap and shows the success moment', async () => {
