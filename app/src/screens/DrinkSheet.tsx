@@ -1,30 +1,40 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Slider from './Slider';
-import { MENU, MODE_LABEL, Mode, MAX_TICK, minutesFromTick, pauseLabel, pauseMinutes, tickFromMinutes, imageFromTemplate, profileFor, menuItem } from '../protocol';
+import { GRIND_CHOICES, MENU, MODE_LABEL, MenuItem, MAX_TICK, SPECIAL_LABEL, grindSeconds, minutesFromTick, modeGrinds, pauseLabel, pauseMinutes, tickFromMinutes, imageFromTemplate, profileFor, menuItem } from '../protocol';
 import { PressScale } from '../ui/Pressable';
 import { Sheet } from '../ui/Sheet';
 import { color, radius, space, touch, type } from '../ui/tokens';
 import { Prefs } from '../state/store';
 
-const GROUPS: Mode[] = ['roast-grind-brew', 'roast', 'grind-brew', 'grind', 'brew'];
+const GROUPS: { key: string; label: string; items: MenuItem[] }[] = [
+  { key: 'roast-grind-brew', label: MODE_LABEL['roast-grind-brew'], items: MENU.filter((m) => m.mode === 'roast-grind-brew') },
+  { key: 'roast', label: MODE_LABEL.roast, items: MENU.filter((m) => m.mode === 'roast' && !m.special) },
+  { key: 'special', label: SPECIAL_LABEL, items: MENU.filter((m) => m.special) },
+  { key: 'grind-brew', label: MODE_LABEL['grind-brew'], items: MENU.filter((m) => m.mode === 'grind-brew') },
+  { key: 'grind', label: MODE_LABEL.grind, items: MENU.filter((m) => m.mode === 'grind') },
+  { key: 'brew', label: MODE_LABEL.brew, items: MENU.filter((m) => m.mode === 'brew') },
+];
 
 export function DrinkSheet({ visible, prefs, onChange, onClose }: { visible: boolean; prefs: Prefs; onChange: (p: Partial<Prefs>) => void; onClose: () => void }) {
   const current = menuItem(prefs.itemId);
-  const defaultPause = pauseMinutes(imageFromTemplate(profileFor(current).templateHex));
+  const template = imageFromTemplate(profileFor(current).templateHex);
+  const defaultPause = pauseMinutes(template);
   const pause = prefs.pauseMinutes ?? defaultPause;
+  const grind = prefs.grindSeconds ?? grindSeconds(template);
   return (
     <Sheet visible={visible} title="What are we making?" onClose={onClose}>
-      {GROUPS.map((mode) => (
-        <View key={mode} style={styles.group}>
-          <Text style={styles.groupLabel}>{MODE_LABEL[mode]}</Text>
+      {GROUPS.map((g) => (
+        <View key={g.key} style={styles.group}>
+          <Text style={styles.groupLabel}>{g.label}</Text>
+          {g.key === 'special' && <Text style={[type.caption, { marginBottom: space.s }]}>Named roasts from the owner community. Green beans in, roasted beans out.</Text>}
           <View style={styles.chips}>
-            {MENU.filter((m) => m.mode === mode).map((m) => {
+            {g.items.map((m) => {
               const on = m.id === prefs.itemId;
               return (
                 <PressScale
                   key={m.id}
-                  onPress={() => onChange({ itemId: m.id, pauseMinutes: m.autoPauseMinutes ?? null })}
+                  onPress={() => onChange({ itemId: m.id, pauseMinutes: m.autoPauseMinutes ?? null, grindSeconds: m.autoGrindSeconds ?? null })}
                   style={[styles.chip, on && styles.chipOn]}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: on }}
@@ -54,6 +64,29 @@ export function DrinkSheet({ visible, prefs, onChange, onClose }: { visible: boo
           <Text style={type.caption}>Roast now and wake up to fresh coffee. Up to 24 hours.</Text>
         </View>
       )}
+      {modeGrinds(current.mode) && (
+        <View style={[styles.pause, { marginTop: space.m }]}>
+          <Text style={styles.groupLabel}>Grind time</Text>
+          <View style={styles.chips} accessibilityRole="radiogroup">
+            {GRIND_CHOICES.map((s) => {
+              const on = s === grind;
+              return (
+                <PressScale
+                  key={s}
+                  onPress={() => onChange({ grindSeconds: s })}
+                  style={[styles.grindChip, on && styles.chipOn]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  accessibilityLabel={`Grind ${s} seconds`}
+                >
+                  <Text style={[styles.chipTitle, on && styles.chipTitleOn]}>{s} s</Text>
+                </PressScale>
+              );
+            })}
+          </View>
+          <Text style={type.caption}>About 45 s for 50 g of beans, 60 s for 70 g, 75 s for 90 g. Too short leaves beans in the grinder.</Text>
+        </View>
+      )}
     </Sheet>
   );
 }
@@ -68,6 +101,7 @@ const styles = StyleSheet.create({
   chipTitleOn: { color: color.white },
   chipDetail: { ...type.caption },
   chipDetailOn: { color: color.cream },
+  grindChip: { minHeight: touch.min, flexGrow: 1, flexBasis: '28%', paddingHorizontal: space.m, borderRadius: radius.chip, backgroundColor: color.cream, alignItems: 'center', justifyContent: 'center' },
   pause: { backgroundColor: color.paper, borderRadius: radius.card, padding: space.m, gap: space.s },
   pauseRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.s, flexWrap: 'wrap' },
   pauseValue: { fontSize: 17, fontWeight: '700', color: color.verde },

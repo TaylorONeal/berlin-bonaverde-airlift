@@ -1,11 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
-import { DEFAULT_ITEM_ID } from '../protocol';
+import { DEFAULT_ITEM_ID, GrindSeconds } from '../protocol';
 
 export interface Prefs {
   itemId: string;
   /** Pause after roast in minutes, roast-grind-brew only. null keeps the card's own default. */
   pauseMinutes: number | null;
+  /** Grind time for cards that grind. null keeps the card's own. */
+  grindSeconds: GrindSeconds | null;
   /** Reusable cards by default. Single-use is an option under More. */
   multiUse: boolean;
   haptics: boolean;
@@ -20,7 +22,7 @@ export interface HistoryEntry {
 
 const PREFS_KEY = 'berlin-airlift/prefs/v1';
 const HISTORY_KEY = 'berlin-airlift/history/v1';
-export const DEFAULT_PREFS: Prefs = { itemId: DEFAULT_ITEM_ID, pauseMinutes: null, multiUse: true, haptics: true };
+export const DEFAULT_PREFS: Prefs = { itemId: DEFAULT_ITEM_ID, pauseMinutes: null, grindSeconds: null, multiUse: true, haptics: true };
 
 export function usePrefs() {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);

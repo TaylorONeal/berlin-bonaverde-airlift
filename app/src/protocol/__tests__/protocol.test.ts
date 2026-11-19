@@ -2,6 +2,7 @@ import {
   crc16Variant, crc8ForTag, hexToBytes, imageFromTemplate, merge, describe as describeCard,
   imageToDumpText, imageFromDumpText, minutesFromTick, tickFromMinutes, MAX_TICK,
   MENU, PROFILES, ARCHIVED_PROFILES, profileFor, writePages, withPauseMinutes, pauseMinutes,
+  grindSeconds, withGrindSeconds, modeGrinds, profileByKey, menuItem,
 } from '..';
 
 // Real card dumps, pages 0 to 15, published by the hackaverde project.
@@ -89,7 +90,19 @@ describe('pause', () => {
 
 describe('menu', () => {
   it('every item maps to a template of the same mode', () => {
-    for (const item of MENU) expect(profileFor(item).mode).toBe(item.mode);
+    for (const item of MENU) {
+      // The Rinse care card is the brew-only card run with no coffee in the machine.
+      if (item.id === 'care-rinse') { expect(profileFor(item).mode).toBe('brew'); continue; }
+      expect(profileFor(item).mode).toBe(item.mode);
+    }
+  });
+  it('The Wave and the other named roasts are pickable', () => {
+    const special = MENU.filter((m) => m.special).map((m) => m.profileKey);
+    expect(special).toEqual(expect.arrayContaining(['roast-wave', 'roast-postcard', 'roast-monpaka', 'roast-flashpump', 'roast-ojo']));
+    for (const m of MENU.filter((x) => x.special)) expect(m.mode).toBe('roast');
+  });
+  it('the Big Pot grinds 75 seconds', () => {
+    expect(menuItem('rgb-big').autoGrindSeconds).toBe(75);
   });
   it('every template is in the menu or the archive', () => {
     for (const p of PROFILES) {
@@ -114,5 +127,35 @@ describe('dump text', () => {
     const card = imageFromDumpText(text);
     expect(card[16]).toBe(0xaa);
     expect(card[20]).toBe(0x05);
+  });
+});
+
+describe('grind time', () => {
+  it('reads the tested values from byte 40', () => {
+    expect(grindSeconds(imageFromTemplate(profileByKey('tavares50').templateHex))).toBe(45);
+    expect(grindSeconds(imageFromTemplate(profileByKey('grindonly').templateHex))).toBe(60);
+  });
+  it('writes bytes 39 and 40 only', () => {
+    const base = imageFromTemplate(profileByKey('tavares80').templateHex);
+    const out = withGrindSeconds(base, 75);
+    expect(out[39]).toBe(75);
+    expect(out[40]).toBe(0x40);
+    for (let i = 0; i < out.length; i++) if (i !== 39 && i !== 40) expect(out[i]).toBe(base[i]);
+    expect(grindSeconds(withGrindSeconds(base, 45))).toBe(45);
+    expect(grindSeconds(withGrindSeconds(base, 60))).toBe(60);
+  });
+  it('a changed grind time still merges into a valid card', () => {
+    const dest = new Uint8Array(80); dest.set(hexToBytes('04169903C2A75080B5480000FFFFFFFF'), 0);
+    const card = merge(withGrindSeconds(imageFromTemplate(profileByKey('tavares80').templateHex), 75), dest, true);
+    expect(describeCard(card).valid).toBe(true);
+    expect(card[40]).toBe(0x40);
+  });
+  it('only applies to commands that grind', () => {
+    expect(modeGrinds('roast-grind-brew')).toBe(true);
+    expect(modeGrinds('grind')).toBe(true);
+    expect(modeGrinds('grind-brew')).toBe(true);
+    expect(modeGrinds('roast')).toBe(false);
+    expect(modeGrinds('brew')).toBe(false);
+    expect(modeGrinds('maintenance')).toBe(false);
   });
 });
