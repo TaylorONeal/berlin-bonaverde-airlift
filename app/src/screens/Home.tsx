@@ -13,6 +13,7 @@ import { PressScale } from '../ui/Pressable';
 import { color, COMPACT_HEIGHT, MAX_SCALE, radius, shadow, space, touch, type } from '../ui/tokens';
 import { summaryLine, summaryParts, templateFor } from './cardFor';
 import { OWNER_BADGE, WHAT_IT_IS } from '../content/help';
+import { CARD_ABOUT } from '../content/cards';
 import { DrinkSheet } from './DrinkSheet';
 import { HelpSheet } from './HelpSheet';
 import { MoreSheet } from './MoreSheet';
@@ -165,6 +166,9 @@ export function Home({ adapter, demo, onDemo, prefs, setPrefs, history, addHisto
           <Text style={styles.change} maxFontSizeMultiplier={MAX_SCALE.control}>Change</Text>
         </View>
       </PressScale>
+      {CARD_ABOUT[item.id] && (
+        <Text style={[styles.about, compact && styles.aboutCompact]} maxFontSizeMultiplier={MAX_SCALE.body}>{CARD_ABOUT[item.id]}</Text>
+      )}
 
       <View style={styles.middle} onLayout={(e) => setMiddleH(e.nativeEvent.layout.height)}>
         {/* Scrolls only when very large text would not fit; otherwise it sits still at the bottom. */}
@@ -293,6 +297,8 @@ const styles = StyleSheet.create({
   pickTitle: { fontFamily: type.title.fontFamily, fontSize: 28, lineHeight: 34, color: color.espresso, marginTop: 2 },
   pickTitleCompact: { fontSize: 24, lineHeight: 28 },
   pickDetail: { fontSize: 15, lineHeight: 20, fontWeight: '600', color: color.bark, marginTop: 2 },
+  about: { fontSize: 15, lineHeight: 21, color: color.espresso, marginHorizontal: space.m, marginTop: space.s, paddingHorizontal: space.s },
+  aboutCompact: { fontSize: 14, lineHeight: 19, marginTop: space.xs },
   changePill: { minHeight: 44, borderRadius: radius.pill, backgroundColor: color.verde, paddingHorizontal: space.m, justifyContent: 'center', flexShrink: 0 },
   done: { alignItems: 'center', gap: space.s },
   doneTitle: { ...type.title, fontSize: 28, lineHeight: 34, textAlign: 'center' },

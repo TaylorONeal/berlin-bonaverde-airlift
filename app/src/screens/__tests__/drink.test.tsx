@@ -58,3 +58,10 @@ it('splits the summary into the drink name and its details for the home panel', 
   const full = templateFor({ ...DEFAULT_PREFS, grindSeconds: 45 });
   expect(summaryParts({ ...DEFAULT_PREFS, grindSeconds: 45 }, full.item)).toEqual({ title: 'Full Pot', detail: 'Grinds 45 s. Reusable.' });
 });
+
+it('describes every card on the menu in plain words', () => {
+  const { MENU } = require('../../protocol');
+  const { CARD_ABOUT } = require('../../content/cards');
+  for (const m of MENU) expect(CARD_ABOUT[m.id]).toBeTruthy();
+  expect(Object.keys(CARD_ABOUT).sort()).toEqual(MENU.map((m: { id: string }) => m.id).sort());
+});

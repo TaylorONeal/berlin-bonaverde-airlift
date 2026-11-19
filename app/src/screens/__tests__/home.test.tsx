@@ -30,6 +30,7 @@ it('opens on one big button with the default already chosen', async () => {
   expect(await screen.findByText('Write a card')).toBeTruthy();
   expect(screen.getByText('Full Pot')).toBeTruthy();
   expect(screen.getByText('Reusable.')).toBeTruthy();
+  expect(screen.getByText(/One shot: roasts, grinds and brews a full pot/)).toBeTruthy();
 });
 
 it('puts the card choice above the write button', async () => {
