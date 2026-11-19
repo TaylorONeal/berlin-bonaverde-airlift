@@ -79,3 +79,9 @@ it('still shows every control on a short phone', async () => {
     spy.mockRestore();
   }
 });
+
+it('shows the holding pattern while it waits for a card', async () => {
+  const { HoldingPattern } = require('../../ui/HoldingPattern');
+  await render(<HoldingPattern size={200} />);
+  expect(screen.getByLabelText('Waiting for a card')).toBeTruthy();
+});
